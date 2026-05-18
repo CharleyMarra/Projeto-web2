@@ -1,66 +1,93 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 
-public class Favorito implements Serializable {
+public class Favoritos implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-    private String usuario;
-    private Produto produto;
+    private Long idFavorito;
+    private LocalDate dataAdicionado;
 
-    public Favorito() {
+    private Usuario usuario;
+    private Jogo jogo;
+
+    public Favoritos() {
     }
 
-    public Favorito(Long id, String usuario, Produto produto) {
-        this.id = id;
+    public Favoritos(Long idFavorito, LocalDate dataAdicionado,
+                      Usuario usuario, Jogo jogo) {
+
+        this.idFavorito = idFavorito;
+        this.dataAdicionado = dataAdicionado;
         this.usuario = usuario;
-        this.produto = produto;
+        this.jogo = jogo;
     }
 
-    public Long getId() {
-        return id;
+    public Long getIdFavorito() {
+        return idFavorito;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdFavorito(Long idFavorito) {
+        this.idFavorito = idFavorito;
     }
 
-    public String getUsuario() {
+    public LocalDate getDataAdicionado() {
+        return dataAdicionado;
+    }
+
+    public void setDataAdicionado(LocalDate dataAdicionado) {
+        this.dataAdicionado = dataAdicionado;
+    }
+
+    public Usuario getUsuario() {
         return usuario;
     }
 
-    public void setUsuario(String usuario) {
+    public void setUsuario(Usuario usuario) {
+
+        if (usuario == null) {
+            throw new IllegalArgumentException(
+                "O usuário não pode ser nulo."
+            );
+        }
+
         this.usuario = usuario;
     }
 
-    public Produto getProduto() {
-        return produto;
+    public Jogo getJogo() {
+        return jogo;
     }
 
-    public void setProduto(Produto produto) {
-        if (produto == null) {
-            throw new IllegalArgumentException("O produto favorito não pode ser nulo.");
+    public void setJogo(Jogo jogo) {
+
+        if (jogo == null) {
+            throw new IllegalArgumentException(
+                "O jogo não pode ser nulo."
+            );
         }
-        this.produto = produto;
+
+        this.jogo = jogo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(idFavorito);
     }
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj)
             return true;
 
         if (obj == null || getClass() != obj.getClass())
             return false;
 
-        Favorito other = (Favorito) obj;
-        return Objects.equals(id, other.id);
+        Favoritos other = (Favoritos) obj;
+
+        return Objects.equals(idFavorito, other.idFavorito);
     }
 }
