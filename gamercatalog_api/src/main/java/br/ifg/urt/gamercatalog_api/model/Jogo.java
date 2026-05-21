@@ -1,25 +1,47 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity // Indica que esta classe é uma tabela no banco de dados
+@Table(name = "jogos") // Nome da tabela
 public class Jogo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id // Define a chave primária
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremento
     private Long id;
+
+    @Column(nullable = false, length = 150)
     private String titulo;
+
+    @Column(length = 500)
     private String descricao;
+
+    @Column(nullable = false)
     private Double preco;
+
+    @Column(nullable = false, length = 100)
     private String genero;
+
+    @Column(nullable = false)
     private Integer classificacaoIndicativa;
 
+    // O construtor padrão é obrigatório para o JPA
     public Jogo() {
     }
 
     public Jogo(Long id, String titulo, String descricao,
                  Double preco, String genero,
                  Integer classificacaoIndicativa) {
+
         this.id = id;
         this.titulo = titulo;
         this.descricao = descricao;
@@ -76,20 +98,17 @@ public class Jogo implements Serializable {
         this.classificacaoIndicativa = classificacaoIndicativa;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    // Método de regra de negócio
+    public void alterarPreco(Double novoPreco) {
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
+        // Validação
+        if (novoPreco == null || novoPreco <= 0) {
+            throw new IllegalArgumentException(
+                    "O preço deve ser maior que zero."
+            );
+        }
 
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-
-        Jogo other = (Jogo) obj;
-        return Objects.equals(id, other.id);
+        // Atualização do estado
+        this.preco = novoPreco;
     }
 }
