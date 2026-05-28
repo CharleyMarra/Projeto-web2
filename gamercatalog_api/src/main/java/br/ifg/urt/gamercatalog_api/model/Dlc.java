@@ -1,26 +1,46 @@
 package br.ifg.urt.gamercatalog_api.model;
 
-public class Dlc {
+import java.io.Serializable;
 
-    private int idDlc;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "dlcs")
+public class Dlc implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 150)
     private String nome;
-    private float preco;
 
+    @Column(nullable = false)
+    private Double preco;
+
+    // Construtor padrão obrigatório para JPA
     public Dlc() {
     }
 
-    public Dlc(int idDlc, String nome, float preco) {
-        this.idDlc = idDlc;
+    public Dlc(Long id, String nome, Double preco) {
+        this.id = id;
         this.nome = nome;
         this.preco = preco;
     }
 
-    public int getIdDlc() {
-        return idDlc;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdDlc(int idDlc) {
-        this.idDlc = idDlc;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -31,11 +51,25 @@ public class Dlc {
         this.nome = nome;
     }
 
-    public float getPreco() {
+    public Double getPreco() {
         return preco;
     }
 
-    public void setPreco(float preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
+    }
+
+    // Método de regra de negócio
+    public void alterarPreco(Double novoPreco) {
+
+        // Validação
+        if (novoPreco == null || novoPreco <= 0) {
+            throw new IllegalArgumentException(
+                    "O preço deve ser maior que zero."
+            );
+        }
+
+        // Atualização do estado
+        this.preco = novoPreco;
     }
 }

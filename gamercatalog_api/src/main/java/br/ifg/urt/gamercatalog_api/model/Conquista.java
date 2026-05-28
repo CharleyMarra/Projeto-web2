@@ -1,26 +1,47 @@
 package br.ifg.urt.gamercatalog_api.model;
 
-public class Conquista {
+import java.io.Serializable;
 
-    private int idConquista;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "conquistas")
+public class Conquista implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String titulo;
+
+    @Column(nullable = false)
     private String raridade;
 
+    // Construtor padrão obrigatório
     public Conquista() {
     }
 
-    public Conquista(int idConquista, String titulo, String raridade) {
-        this.idConquista = idConquista;
+    public Conquista(Long id, String titulo, String raridade) {
+        this.id = id;
         this.titulo = titulo;
         this.raridade = raridade;
     }
 
-    public int getIdConquista() {
-        return idConquista;
+    // Getters e Setters
+    public Long getId() {
+        return id;
     }
 
-    public void setIdConquista(int idConquista) {
-        this.idConquista = idConquista;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitulo() {

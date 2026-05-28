@@ -1,22 +1,45 @@
 package br.ifg.urt.gamercatalog_api.model;
 
-public class Usuario {
+import java.io.Serializable;
 
-    private int idUsuario;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "usuarios")
+public class Usuario implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String nome;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String senha;
 
+    // Construtor padrão obrigatório
     public Usuario() {
     }
 
-    public Usuario(int idUsuario, String nome, String email, String senha) {
-        this.idUsuario = idUsuario;
+    public Usuario(Long id, String nome, String email, String senha) {
+        this.id = id;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
     }
 
+    // Métodos
     public void fazerComentario() {
         System.out.println("Comentário realizado");
     }
@@ -29,12 +52,13 @@ public class Usuario {
         System.out.println("Jogo favoritado");
     }
 
-    public int getIdUsuario() {
-        return idUsuario;
+    // Getters e Setters
+    public Long getId() {
+        return id;
     }
 
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
