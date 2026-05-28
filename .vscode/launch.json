@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-GamercatalogApiApplication<gamercatalog_api>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "br.ifg.urt.gamercatalog_api.GamercatalogApiApplication",
+            "projectName": "gamercatalog_api",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

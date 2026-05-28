@@ -1,20 +1,40 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
+@Entity // Indica que esta classe é uma tabela no banco
+@Table(name = "plataformas")
 public class Plataforma implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id // Chave primária
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 100)
     private String nome;
+
+    @Column(nullable = false, length = 100)
     private String fabricante;
 
+    // Relacionamento:
+    // Uma plataforma possui vários jogos
+    @JsonIgnore
+    @OneToMany(mappedBy = "plataforma")
+    private List<Jogo> jogos;
+
+    // Construtor padrão obrigatório
     public Plataforma() {
     }
 
-    public Plataforma(Long id, String nome, String fabricante) {
+    public Plataforma(Long id,
+                      String nome,
+                      String fabricante) {
+
         this.id = id;
         this.nome = nome;
         this.fabricante = fabricante;
@@ -44,20 +64,11 @@ public class Plataforma implements Serializable {
         this.fabricante = fabricante;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public List<Jogo> getJogos() {
+        return jogos;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-
-        Plataforma other = (Plataforma) obj;
-        return Objects.equals(id, other.id);
+    public void setJogos(List<Jogo> jogos) {
+        this.jogos = jogos;
     }
 }
