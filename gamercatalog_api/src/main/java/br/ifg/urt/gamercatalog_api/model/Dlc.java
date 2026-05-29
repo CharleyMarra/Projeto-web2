@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,6 +26,10 @@ public class Dlc implements Serializable {
 
     @Column(nullable = false)
     private Double preco;
+
+    @ManyToOne
+    @JoinColumn(name = "jogo_id")
+    private Jogo jogo;
 
     // Construtor padrão obrigatório para JPA
     public Dlc() {

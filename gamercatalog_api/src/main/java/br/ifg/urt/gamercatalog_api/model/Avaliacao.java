@@ -2,25 +2,53 @@ package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "avaliacoes")
 public class Avaliacao implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAvaliacao;
+
+    @Column(nullable = false)
     private Integer nota;
+
+    @Column(length = 1000)
     private String textoCritica;
+
+    @Column(nullable = false)
     private LocalDate dataPostagem;
 
+    // Muitos avaliações para um usuário
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    // Muitas avaliações para um jogo
+    @ManyToOne
+    @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
 
+    // Construtor padrão obrigatório para JPA
     public Avaliacao() {
     }
 
-    public Avaliacao(Long idAvaliacao, Integer nota, String textoCritica,
-                      LocalDate dataPostagem, Usuario usuario, Jogo jogo) {
+    public Avaliacao(Long idAvaliacao, Integer nota,
+                      String textoCritica,
+                      LocalDate dataPostagem,
+                      Usuario usuario,
+                      Jogo jogo) {
 
         this.idAvaliacao = idAvaliacao;
         this.nota = nota;
@@ -46,7 +74,7 @@ public class Avaliacao implements Serializable {
 
         if (nota == null || nota < 0 || nota > 10) {
             throw new IllegalArgumentException(
-                "A nota deve estar entre 0 e 10."
+                    "A nota deve estar entre 0 e 10."
             );
         }
 
@@ -77,7 +105,7 @@ public class Avaliacao implements Serializable {
 
         if (usuario == null) {
             throw new IllegalArgumentException(
-                "O usuário não pode ser nulo."
+                    "O usuário não pode ser nulo."
             );
         }
 
@@ -92,29 +120,24 @@ public class Avaliacao implements Serializable {
 
         if (jogo == null) {
             throw new IllegalArgumentException(
-                "O jogo não pode ser nulo."
+                    "O jogo não pode ser nulo."
             );
         }
 
         this.jogo = jogo;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(idAvaliacao);
-    }
+    /**
+     * Regra de negócio
+     */
+    public void alterarNota(Integer novaNota) {
 
-    @Override
-    public boolean equals(Object obj) {
+        if (novaNota == null || novaNota < 0 || novaNota > 10) {
+            throw new IllegalArgumentException(
+                    "A nota deve estar entre 0 e 10."
+            );
+        }
 
-        if (this == obj)
-            return true;
-
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-
-        Avaliacao other = (Avaliacao) obj;
-
-        return Objects.equals(idAvaliacao, other.idAvaliacao);
+        this.nota = novaNota;
     }
 }

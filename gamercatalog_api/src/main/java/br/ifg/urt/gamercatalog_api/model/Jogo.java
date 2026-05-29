@@ -1,13 +1,16 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 
 @Entity // Indica que esta classe é uma tabela no banco de dados
 @Table(name = "jogos") // Nome da tabela
@@ -33,6 +36,33 @@ public class Jogo implements Serializable {
 
     @Column(nullable = false)
     private Integer classificacaoIndicativa;
+
+    @ManyToOne
+    @JoinColumn(name = "plataforma_id")
+    private Plataforma plataforma;
+
+    @ManyToOne
+    @JoinColumn(name = "estudio_id")
+    private Estudio estudio;
+
+    @ManyToOne
+    @JoinColumn(name = "publisher_id")
+    private Publisher publisher;
+
+    @OneToMany(mappedBy = "jogo")
+    private List<Avaliacao> avaliacoes;
+
+    @OneToMany(mappedBy = "jogo")
+    private List<Comentarios> comentarios;
+
+    @OneToMany(mappedBy = "jogo")
+    private List<Dlc> dlcs;
+
+    @OneToMany(mappedBy = "jogo")
+    private List<Conquista> conquistas;
+
+    @OneToMany(mappedBy = "jogo")
+    private List<Favoritos> favoritos;
 
     // O construtor padrão é obrigatório para o JPA
     public Jogo() {
