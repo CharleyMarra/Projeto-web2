@@ -42,6 +42,7 @@ public class Conquista implements Serializable {
     }
 
     // Getters e Setters
+
     public Long getId() {
         return id;
     }
@@ -64,5 +65,13 @@ public class Conquista implements Serializable {
 
     public void setRaridade(String raridade) {
         this.raridade = raridade;
+    }
+
+    public Jogo getJogo() {
+        return jogo;
+    }
+
+    public void setJogo(Jogo jogo) {
+        this.jogo = jogo;
     }
 }
