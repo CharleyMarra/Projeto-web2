@@ -17,9 +17,15 @@ public class AvaliacaoController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens
+    // 200 OK - Padrão para listagens (Aceita o filtro opcional ?jogoId=X)
     @GetMapping
-    public ResponseEntity<List<Avaliacao>> buscarTodos() {
+    public ResponseEntity<List<Avaliacao>> buscarTodos(
+            @RequestParam(required = false) Long jogoId) {
+
+        if (jogoId != null) {
+            List<Avaliacao> avaliacoesPorJogo = service.findByJogo(jogoId);
+            return ResponseEntity.ok(avaliacoesPorJogo);
+        }
 
         List<Avaliacao> avaliacoes = service.findAll();
 

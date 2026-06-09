@@ -1,11 +1,9 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.service.ConquistaService;
 
@@ -19,9 +17,15 @@ public class ConquistaController {
         this.service = service;
     }
 
-    // Listar todas as conquistas
+    // Listar conquistas (Aceita o filtro opcional ?usuarioId=X)
     @GetMapping
-    public ResponseEntity<List<Conquista>> buscarTodos() {
+    public ResponseEntity<List<Conquista>> buscarTodos(
+            @RequestParam(required = false) Long usuarioId) {
+
+        if (usuarioId != null) {
+            List<Conquista> conquistasPorUsuario = service.findByUsuario(usuarioId);
+            return ResponseEntity.ok(conquistasPorUsuario);
+        }
 
         List<Conquista> conquistas = service.findAll();
 

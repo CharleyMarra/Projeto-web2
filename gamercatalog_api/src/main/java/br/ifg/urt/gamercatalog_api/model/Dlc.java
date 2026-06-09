@@ -78,4 +78,12 @@ public class Dlc implements Serializable {
         // Atualização do estado
         this.preco = novoPreco;
     }
+
+    public Jogo getJogo() {
+        return jogo;
+    }
+
+    public void setJogo(Jogo jogo) {
+        this.jogo = jogo;
+    }
 }

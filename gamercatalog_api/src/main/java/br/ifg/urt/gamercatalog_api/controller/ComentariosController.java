@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import br.ifg.urt.gamercatalog_api.model.Comentarios;
+import br.ifg.urt.gamercatalog_api.dto.request.ComentariosRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.ComentariosService;
 
 @RestController
@@ -17,58 +18,49 @@ public class ComentariosController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens
+    // Retorna a lista enxuta de ResponseDTO (Aceita o filtro opcional ?jogoId=X)
     @GetMapping
-    public ResponseEntity<List<Comentarios>> buscarTodos() {
+    public ResponseEntity<List<ComentariosResponseDTO>> buscarTodos(
+            @RequestParam(required = false) Long jogoId) {
 
-        List<Comentarios> comentarios = service.findAll();
+        if (jogoId != null) {
+            return ResponseEntity.ok(service.findByJogo(jogoId));
+        }
 
-        return ResponseEntity.ok(comentarios);
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // 200 OK - Padrão para busca individual bem-sucedida
+    // Retorna a resposta enxuta de um único comentário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Comentarios> buscarPorId(
+    public ResponseEntity<ComentariosResponseDTO> buscarPorId(
             @PathVariable Long id) {
 
-        Comentarios comentario = service.findById(id);
-
-        return ResponseEntity.ok(comentario);
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // 201 Created - Padrão para criação de recursos
+    // Recebe RequestDTO no corpo e devolve um ResponseDTO
     @PostMapping
-    public ResponseEntity<Comentarios> criar(
-            @RequestBody Comentarios comentario) {
+    public ResponseEntity<ComentariosResponseDTO> criar(
+            @RequestBody ComentariosRequestDTO dto) {
 
-        Comentarios novoComentario =
-                service.create(comentario);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoComentario);
+        ComentariosResponseDTO novoComentario = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoComentario);
     }
 
-    // 200 OK - Recurso atualizado com sucesso
+    // Atualiza recebendo os novos dados estruturados em DTO
     @PutMapping("/{id}")
-    public ResponseEntity<Comentarios> atualizar(
+    public ResponseEntity<ComentariosResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody Comentarios comentario) {
+            @RequestBody ComentariosRequestDTO dto) {
 
-        comentario.setIdComentario(id);
-
-        Comentarios comentarioAtualizado =
-                service.update(comentario);
-
-        return ResponseEntity.ok(comentarioAtualizado);
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    // 204 No Content - Padrão para remoção
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id) {
 
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

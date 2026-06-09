@@ -12,31 +12,19 @@ import br.ifg.urt.gamercatalog_api.model.Usuario;
 public interface FavoritosRepository
         extends JpaRepository<Favoritos, Long> {
 
-    /**
-     * Busca um favorito por ID ou lança exceção
-     */
     default Favoritos findByIdOrThrow(Long id) {
-
         return findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Favorito não encontrado com ID: " + id
-                        )
-                );
+                .orElseThrow(() -> new RuntimeException("Favorito não encontrado com ID: " + id));
     }
 
-    // Busca favoritos de um usuário
     List<Favoritos> findByUsuario(Usuario usuario);
 
-    // Busca favoritos de um jogo
+    // ADICIONADO: Busca os favoritos de um usuário diretamente pelo ID numérico dele
+    List<Favoritos> findByUsuarioId(Long usuarioId);
+
     List<Favoritos> findByJogo(Jogo jogo);
 
-    // Busca favoritos por usuário e jogo
-    Optional<Favoritos> findByUsuarioAndJogo(
-            Usuario usuario,
-            Jogo jogo
-    );
+    Optional<Favoritos> findByUsuarioAndJogo(Usuario usuario, Jogo jogo);
 
-    // Ordena favoritos pela data de adição
     List<Favoritos> findAllByOrderByDataAdicionadoAsc();
 }

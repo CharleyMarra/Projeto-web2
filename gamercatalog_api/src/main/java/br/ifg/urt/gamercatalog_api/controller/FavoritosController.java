@@ -17,58 +17,43 @@ public class FavoritosController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens
+    // 200 OK - Padrão para listagens (Aceita o filtro opcional ?usuarioId=X)
     @GetMapping
-    public ResponseEntity<List<Favoritos>> buscarTodos() {
+    public ResponseEntity<List<Favoritos>> buscarTodos(
+            @RequestParam(required = false) Long usuarioId) {
+
+        if (usuarioId != null) {
+            List<Favoritos> favoritosPorUsuario = service.findByUsuario(usuarioId);
+            return ResponseEntity.ok(favoritosPorUsuario);
+        }
 
         List<Favoritos> favoritos = service.findAll();
 
         return ResponseEntity.ok(favoritos);
     }
 
-    // 200 OK - Padrão para busca individual bem-sucedida
     @GetMapping("/{id}")
-    public ResponseEntity<Favoritos> buscarPorId(
-            @PathVariable Long id) {
-
+    public ResponseEntity<Favoritos> buscarPorId(@PathVariable Long id) {
         Favoritos favorito = service.findById(id);
-
         return ResponseEntity.ok(favorito);
     }
 
-    // 201 Created - Padrão para criação de recursos
     @PostMapping
-    public ResponseEntity<Favoritos> criar(
-            @RequestBody Favoritos favorito) {
-
-        Favoritos novoFavorito =
-                service.create(favorito);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoFavorito);
+    public ResponseEntity<Favoritos> criar(@RequestBody Favoritos favorito) {
+        Favoritos novoFavorito = service.create(favorito);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoFavorito);
     }
 
-    // 200 OK - Recurso atualizado com sucesso
     @PutMapping("/{id}")
-    public ResponseEntity<Favoritos> atualizar(
-            @PathVariable Long id,
-            @RequestBody Favoritos favorito) {
-
+    public ResponseEntity<Favoritos> atualizar(@PathVariable Long id, @RequestBody Favoritos favorito) {
         favorito.setIdFavorito(id);
-
-        Favoritos favoritoAtualizado =
-                service.update(favorito);
-
+        Favoritos favoritoAtualizado = service.update(favorito);
         return ResponseEntity.ok(favoritoAtualizado);
     }
 
-    // 204 No Content - Padrão para remoção
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-            @PathVariable Long id) {
-
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

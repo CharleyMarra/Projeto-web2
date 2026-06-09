@@ -1,5 +1,6 @@
 package br.ifg.urt.gamercatalog_api.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
@@ -26,17 +27,12 @@ public class AvaliacaoService {
      */
     public Avaliacao findById(Long id) {
 
-        logger.info(
-                "Buscando avaliação no banco com ID: " + id
-        );
+        logger.info("Buscando avaliação no banco com ID: " + id);
 
         return repository.findById(id)
                 .orElseThrow(() -> {
 
-                    logger.warning(
-                            "Avaliação ID " + id
-                                    + " não encontrada."
-                    );
+                    logger.warning("Avaliação ID " + id + " não encontrada.");
 
                     return new RuntimeException(
                             "Avaliação não encontrada"
@@ -49,23 +45,41 @@ public class AvaliacaoService {
      */
     public List<Avaliacao> findAll() {
 
-        logger.info(
-                "Buscando todas as avaliações no banco."
-        );
+        logger.info("Buscando todas as avaliações no banco.");
 
         return repository.findAll();
     }
 
     /**
-     * Cria uma nova avaliação
+     * REGRA DE NEGÓCIO: Busca apenas as avaliações vinculadas a um jogo específico
+     */
+    public List<Avaliacao> findByJogo(Long jogoId) {
+
+        logger.info("Buscando avaliações no banco para o jogo ID: " + jogoId);
+
+        return repository.findByJogoId(jogoId);
+    }
+
+    /**
+     * REGRA DE NEGÓCIO (RF07): Cria uma nova avaliação injetando data automática e validando a nota
      */
     public Avaliacao create(Avaliacao avaliacao) {
 
-        logger.info(
-                "Salvando nova avaliação no banco."
-        );
+        logger.info("Salvando nova avaliação no banco com validações de negócio.");
 
-        // save() cria no banco
+        if (avaliacao.getUsuario() == null || avaliacao.getJogo() == null) {
+            logger.warning("Tentativa de avaliar sem usuário ou jogo vinculados.");
+            throw new IllegalArgumentException(
+                    "A avaliação deve possuir um usuário e um jogo válidos."
+            );
+        }
+
+        // Força a validação da nota máxima/mínima definida no Model (0 a 10)
+        avaliacao.setNota(avaliacao.getNota());
+
+        // Injeta a data atual de forma automática
+        avaliacao.setDataPostagem(LocalDate.now());
+
         return repository.save(avaliacao);
     }
 
@@ -75,21 +89,17 @@ public class AvaliacaoService {
     @Transactional
     public Avaliacao update(Avaliacao avaliacao) {
 
-        logger.info(
-                "Atualizando avaliação ID: "
-                        + avaliacao.getIdAvaliacao()
-        );
+        logger.info("Atualizando avaliação ID: "
+                + avaliacao.getIdAvaliacao());
 
         // Verifica existência
         Avaliacao existing = repository
                 .findById(avaliacao.getIdAvaliacao())
                 .orElseThrow(() -> {
 
-                    logger.warning(
-                            "Avaliação ID "
-                                    + avaliacao.getIdAvaliacao()
-                                    + " não encontrada."
-                    );
+                    logger.warning("Avaliação ID "
+                            + avaliacao.getIdAvaliacao()
+                            + " não encontrada.");
 
                     return new RuntimeException(
                             "Avaliação não encontrada"
@@ -110,7 +120,6 @@ public class AvaliacaoService {
                 avaliacao.getJogo()
         );
 
-        // save() atualiza no banco
         return repository.save(existing);
     }
 
@@ -119,18 +128,12 @@ public class AvaliacaoService {
      */
     public void delete(Long id) {
 
-        logger.info(
-                "Removendo avaliação ID: " + id
-        );
+        logger.info("Removendo avaliação ID: " + id);
 
         Avaliacao existing = repository.findById(id)
                 .orElseThrow(() -> {
 
-                    logger.warning(
-                            "Avaliação ID "
-                                    + id
-                                    + " não encontrada."
-                    );
+                    logger.warning("Avaliação ID " + id + " não encontrada.");
 
                     return new RuntimeException(
                             "Avaliação não encontrada"
@@ -144,41 +147,24 @@ public class AvaliacaoService {
      * Altera a nota da avaliação
      */
     @Transactional
-    public Avaliacao alterarNota(
-            Long id,
-            Integer novaNota) {
+    public Avaliacao alterarNota(Long id, Integer novaNota) {
 
         Avaliacao avaliacao = repository
                 .findById(id)
                 .orElseThrow(() -> {
 
-                    logger.warning(
-                            "Avaliação ID "
-                                    + id
-                                    + " não encontrada."
-                    );
+                    logger.warning("Avaliação ID " + id + " não encontrada.");
 
                     return new RuntimeException(
                             "Avaliação não encontrada"
                     );
                 });
 
-        logger.info(
-                "Alterando nota da avaliação ID: "
-                        + avaliacao.getIdAvaliacao()
-        );
+        logger.info("Alterando nota da avaliação ID: " + avaliacao.getIdAvaliacao());
 
         // Regra de negócio no Model
         avaliacao.alterarNota(novaNota);
 
-        // Salva atualização
-        Avaliacao avaliacaoAtualizada =
-                repository.save(avaliacao);
-
-        logger.info(
-                "Nota atualizada com sucesso."
-        );
-
-        return avaliacaoAtualizada;
+        return repository.save(avaliacao);
     }
 }

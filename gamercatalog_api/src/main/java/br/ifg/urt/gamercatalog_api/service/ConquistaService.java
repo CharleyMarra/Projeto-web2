@@ -2,10 +2,8 @@ package br.ifg.urt.gamercatalog_api.service;
 
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
 
@@ -52,12 +50,21 @@ public class ConquistaService {
     }
 
     /**
+     * REGRA DE NEGÓCIO: Busca as conquistas de jogos vinculados a um usuário específico
+     */
+    public List<Conquista> findByUsuario(Long usuarioId) {
+
+        logger.info("Buscando conquistas para o usuário ID: " + usuarioId);
+
+        return repository.findByUsuarioId(usuarioId);
+    }
+
+    /**
      * Cria uma nova conquista
      */
     public Conquista create(Conquista conquista) {
 
-        logger.info("Salvando nova conquista no banco: "
-                + conquista.getTitulo());
+        logger.info("Salvando nova conquista no banco: " + conquista.getTitulo());
 
         return repository.save(conquista);
     }
@@ -68,15 +75,12 @@ public class ConquistaService {
     @Transactional
     public Conquista update(Conquista conquista) {
 
-        logger.info("Atualizando conquista ID: "
-                + conquista.getId());
+        logger.info("Atualizando conquista ID: " + conquista.getId());
 
         Conquista existing = repository.findById(conquista.getId())
                 .orElseThrow(() -> {
 
-                    logger.warning("Conquista ID "
-                            + conquista.getId()
-                            + " não encontrada.");
+                    logger.warning("Conquista ID " + conquista.getId() + " não encontrada.");
 
                     return new RuntimeException(
                             "Conquista não encontrada"
@@ -99,9 +103,7 @@ public class ConquistaService {
         Conquista existing = repository.findById(id)
                 .orElseThrow(() -> {
 
-                    logger.warning("Conquista ID "
-                            + id
-                            + " não encontrada.");
+                    logger.warning("Conquista ID " + id + " não encontrada.");
 
                     return new RuntimeException(
                             "Conquista não encontrada"

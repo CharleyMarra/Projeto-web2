@@ -1,9 +1,13 @@
 package br.ifg.urt.gamercatalog_api.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.ComentariosRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.ComentariosMapper;
 import br.ifg.urt.gamercatalog_api.model.Comentarios;
 import br.ifg.urt.gamercatalog_api.repository.ComentariosRepository;
 
@@ -13,109 +17,92 @@ public class ComentariosService {
     private static final Logger logger =
             Logger.getLogger(ComentariosService.class.getName());
 
-    // Repository para acesso ao banco
     private final ComentariosRepository repository;
+    private final ComentariosMapper mapper; // INJETADO O MAPPER
 
-    // Injeção via construtor
-    public ComentariosService(
-            ComentariosRepository repository) {
-
+    // Construtor atualizado recebendo o Mapper automático
+    public ComentariosService(ComentariosRepository repository, ComentariosMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     /**
-     * Busca um comentário por ID
+     * Busca um comentário por ID e retorna formatado em DTO
      */
-    public Comentarios findById(Long id) {
+    public ComentariosResponseDTO findById(Long id) {
 
-        logger.info(
-                "Buscando comentário no banco com ID: " + id
-        );
+        logger.info("Buscando comentário no banco com ID: " + id);
 
-        return repository.findById(id)
+        Comentarios comentario = repository.findById(id)
                 .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Comentário ID "
-                                    + id
-                                    + " não encontrado."
-                    );
-
-                    return new RuntimeException(
-                            "Comentário não encontrado"
-                    );
+                    logger.warning("Comentário ID " + id + " não encontrado.");
+                    return new RuntimeException("Comentário não encontrado");
                 });
+
+        return mapper.toResponseDTO(comentario); // Conversão para DTO
     }
 
     /**
-     * Busca todos os comentários
+     * Busca todos os comentários e retorna a lista em DTO
      */
-    public List<Comentarios> findAll() {
+    public List<ComentariosResponseDTO> findAll() {
 
-        logger.info(
-                "Buscando todos os comentários no banco."
-        );
+        logger.info("Buscando todos os comentários no banco.");
+        List<Comentarios> comentarios = repository.findAll();
 
-        return repository.findAll();
+        return mapper.toResponseDTOList(comentarios); // Conversão automática de lista
     }
 
     /**
-     * Cria um novo comentário
+     * Busca os comentários vinculados a um jogo específico
      */
-    public Comentarios create(
-            Comentarios comentario) {
+    public List<ComentariosResponseDTO> findByJogo(Long jogoId) {
 
-        logger.info(
-                "Salvando novo comentário no banco."
-        );
+        logger.info("Buscando comentários no banco para o jogo ID: " + jogoId);
+        List<Comentarios> comentarios = repository.findByJogoId(jogoId);
 
-        // save() cria no banco
-        return repository.save(comentario);
+        return mapper.toResponseDTOList(comentarios); // Conversão de lista filtrada
     }
 
     /**
-     * Atualiza um comentário existente
+     * Cria um novo comentário a partir de um RequestDTO
+     */
+    public ComentariosResponseDTO create(ComentariosRequestDTO dto) {
+
+        logger.info("Salvando novo comentário via DTO no banco.");
+
+        if (dto.usuarioId() == null || dto.jogoId() == null) {
+            throw new IllegalArgumentException("O comentário deve possuir um usuário e um jogo válidos.");
+        }
+
+        // Converte o DTO de entrada para a Entidade que vai pro banco
+        Comentarios comentario = mapper.toEntity(dto);
+        
+        // Aplica a regra de negócio de data automática
+        comentario.setDataHora(LocalDateTime.now());
+
+        Comentarios salvo = repository.save(comentario);
+
+        return mapper.toResponseDTO(salvo); // Retorna a resposta limpa (ResponseDTO)
+    }
+
+    /**
+     * Atualiza o texto de um comentário existente
      */
     @Transactional
-    public Comentarios update(
-            Comentarios comentario) {
+    public ComentariosResponseDTO update(Long id, ComentariosRequestDTO dto) {
 
-        logger.info(
-                "Atualizando comentário ID: "
-                        + comentario.getIdComentario()
-        );
+        logger.info("Atualizando comentário ID: " + id);
 
-        // Verifica existência
-        Comentarios existing =
-                repository.findById(
-                        comentario.getIdComentario()
-                )
-                .orElseThrow(() -> {
+        Comentarios existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comentário não encontrado"));
 
-                    logger.warning(
-                            "Comentário ID "
-                                    + comentario.getIdComentario()
-                                    + " não encontrado."
-                    );
+        // Aplica a regra de negócio de edição contida no Model
+        existing.editarComentario(dto.texto());
 
-                    return new RuntimeException(
-                            "Comentário não encontrado"
-                    );
-                });
+        Comentarios atualizado = repository.save(existing);
 
-        existing.setTexto(comentario.getTexto());
-        existing.setDataHora(
-                comentario.getDataHora()
-        );
-        existing.setUsuario(
-                comentario.getUsuario()
-        );
-        existing.setJogo(
-                comentario.getJogo()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
+        return mapper.toResponseDTO(atualizado);
     }
 
     /**
@@ -123,66 +110,10 @@ public class ComentariosService {
      */
     public void delete(Long id) {
 
-        logger.info(
-                "Removendo comentário ID: " + id
-        );
-
-        Comentarios existing =
-                repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Comentário ID "
-                                    + id
-                                    + " não encontrado."
-                    );
-
-                    return new RuntimeException(
-                            "Comentário não encontrado"
-                    );
-                });
+        logger.info("Removendo comentário ID: " + id);
+        Comentarios existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comentário não encontrado"));
 
         repository.delete(existing);
-    }
-
-    /**
-     * Edita o texto do comentário
-     */
-    @Transactional
-    public Comentarios editarComentario(
-            Long id,
-            String novoTexto) {
-
-        Comentarios comentario =
-                repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Comentário ID "
-                                    + id
-                                    + " não encontrado."
-                    );
-
-                    return new RuntimeException(
-                            "Comentário não encontrado"
-                    );
-                });
-
-        logger.info(
-                "Editando comentário ID: " + id
-        );
-
-        // Regra de negócio no Model
-        comentario.editarComentario(novoTexto);
-
-        // Salva atualização
-        Comentarios comentarioAtualizado =
-                repository.save(comentario);
-
-        logger.info(
-                "Comentário atualizado com sucesso."
-        );
-
-        return comentarioAtualizado;
     }
 }

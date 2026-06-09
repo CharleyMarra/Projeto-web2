@@ -1,11 +1,9 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import br.ifg.urt.gamercatalog_api.model.Dlc;
 import br.ifg.urt.gamercatalog_api.service.DlcService;
 
@@ -19,9 +17,15 @@ public class DlcController {
         this.service = service;
     }
 
-    // Listar todas as DLCs
+    // Listar todas as DLCs (Aceita o filtro opcional ?jogoId=X)
     @GetMapping
-    public ResponseEntity<List<Dlc>> buscarTodos() {
+    public ResponseEntity<List<Dlc>> buscarTodos(
+            @RequestParam(required = false) Long jogoId) {
+
+        if (jogoId != null) {
+            List<Dlc> dlcsPorJogo = service.findByJogo(jogoId);
+            return ResponseEntity.ok(dlcsPorJogo);
+        }
 
         List<Dlc> dlcs = service.findAll();
 

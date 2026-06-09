@@ -2,10 +2,8 @@ package br.ifg.urt.gamercatalog_api.service;
 
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import br.ifg.urt.gamercatalog_api.model.Dlc;
 import br.ifg.urt.gamercatalog_api.repository.DlcRepository;
 
@@ -52,12 +50,21 @@ public class DlcService {
     }
 
     /**
+     * REGRA DE NEGÓCIO: Busca apenas as DLCs vinculadas a um jogo específico
+     */
+    public List<Dlc> findByJogo(Long jogoId) {
+
+        logger.info("Buscando DLCs no banco para o jogo ID: " + jogoId);
+
+        return repository.findByJogoId(jogoId);
+    }
+
+    /**
      * Cria uma nova DLC
      */
     public Dlc create(Dlc dlc) {
 
-        logger.info("Salvando nova DLC no banco: "
-                + dlc.getNome());
+        logger.info("Salvando nova DLC no banco: " + dlc.getNome());
 
         return repository.save(dlc);
     }
@@ -68,15 +75,12 @@ public class DlcService {
     @Transactional
     public Dlc update(Dlc dlc) {
 
-        logger.info("Atualizando DLC ID: "
-                + dlc.getId());
+        logger.info("Atualizando DLC ID: " + dlc.getId());
 
         Dlc existing = repository.findById(dlc.getId())
                 .orElseThrow(() -> {
 
-                    logger.warning("DLC ID "
-                            + dlc.getId()
-                            + " não encontrada.");
+                    logger.warning("DLC ID " + dlc.getId() + " não encontrada.");
 
                     return new RuntimeException(
                             "DLC não encontrada"
@@ -99,9 +103,7 @@ public class DlcService {
         Dlc existing = repository.findById(id)
                 .orElseThrow(() -> {
 
-                    logger.warning("DLC ID "
-                            + id
-                            + " não encontrada.");
+                    logger.warning("DLC ID " + id + " não encontrada.");
 
                     return new RuntimeException(
                             "DLC não encontrada"
