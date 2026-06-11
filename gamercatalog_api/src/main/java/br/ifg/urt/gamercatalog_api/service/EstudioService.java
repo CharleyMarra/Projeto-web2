@@ -4,117 +4,62 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.EstudioRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.EstudioResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.EstudioMapper;
 import br.ifg.urt.gamercatalog_api.model.Estudio;
 import br.ifg.urt.gamercatalog_api.repository.EstudioRepository;
 
 @Service
 public class EstudioService {
 
-    private static final Logger logger =
-            Logger.getLogger(EstudioService.class.getName());
+    private static final Logger logger = Logger.getLogger(EstudioService.class.getName());
 
-    // Repository para acesso ao banco
     private final EstudioRepository repository;
+    private final EstudioMapper mapper;
 
-    // Injeção via construtor
-    public EstudioService(EstudioRepository repository) {
+    public EstudioService(EstudioRepository repository, EstudioMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca um estúdio por ID
-     */
-    public Estudio findById(Long id) {
-
+    public EstudioResponseDTO findById(Long id) {
         logger.info("Buscando estúdio no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Estúdio ID "
-                            + id
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Estúdio não encontrado"
-                    );
-                });
+        Estudio estudio = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estúdio não encontrado"));
+        return mapper.toResponseDTO(estudio);
     }
 
-    /**
-     * Busca todos os estúdios
-     */
-    public List<Estudio> findAll() {
-
+    public List<EstudioResponseDTO> findAll() {
         logger.info("Buscando todos os estúdios no banco.");
-
-        return repository.findAll();
+        return mapper.toResponseDTOList(repository.findAll());
     }
 
-    /**
-     * Cria um novo estúdio
-     */
-    public Estudio create(Estudio estudio) {
-
-        logger.info("Salvando novo estúdio no banco: "
-                + estudio.getNome());
-
-        // save() cria no banco
-        return repository.save(estudio);
+    public EstudioResponseDTO create(EstudioRequestDTO dto) {
+        logger.info("Salvando novo estúdio via DTO no banco.");
+        Estudio estudio = mapper.toEntity(dto);
+        Estudio salvo = repository.save(estudio);
+        return mapper.toResponseDTO(salvo);
     }
 
-    /**
-     * Atualiza um estúdio existente
-     */
     @Transactional
-    public Estudio update(Estudio estudio) {
-
-        logger.info("Atualizando estúdio ID: "
-                + estudio.getId());
-
-        // Verifica existência
-        Estudio existing = repository.findById(
-                        estudio.getId()
-                )
-                .orElseThrow(() -> {
-
-                    logger.warning("Estúdio ID "
-                            + estudio.getId()
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Estúdio não encontrado"
-                    );
-                });
-
-        existing.setNome(estudio.getNome());
-        existing.setPais(
-                estudio.getPais()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove um estúdio
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo estúdio ID: " + id);
+    public EstudioResponseDTO update(Long id, EstudioRequestDTO dto) {
+        logger.info("Atualizando estúdio ID: " + id);
 
         Estudio existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new RuntimeException("Estúdio não encontrado"));
 
-                    logger.warning("Estúdio ID "
-                            + id
-                            + " não encontrado.");
+        existing.setNome(dto.nome());
+        existing.setPais(dto.paisOrigem()); // Conforme mapeamento no EstudioMapper
 
-                    return new RuntimeException(
-                            "Estúdio não encontrado"
-                    );
-                });
+        Estudio atualizado = repository.save(existing);
+        return mapper.toResponseDTO(atualizado);
+    }
 
+    public void delete(Long id) {
+        logger.info("Removendo estúdio ID: " + id);
+        Estudio existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estúdio não encontrado"));
         repository.delete(existing);
     }
 }

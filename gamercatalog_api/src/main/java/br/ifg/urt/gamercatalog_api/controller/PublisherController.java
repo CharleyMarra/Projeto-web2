@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import br.ifg.urt.gamercatalog_api.model.Publisher;
+import br.ifg.urt.gamercatalog_api.dto.request.PublisherRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.PublisherService;
 
 @RestController
@@ -17,60 +18,32 @@ public class PublisherController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens
     @GetMapping
-    public ResponseEntity<List<Publisher>> buscarTodos() {
-
-        List<Publisher> publishers = service.findAll();
-
-        return ResponseEntity.ok(publishers);
+    public ResponseEntity<List<PublisherResponseDTO>> buscarTodos() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // 200 OK - Padrão para busca individual
     @GetMapping("/{id}")
-    public ResponseEntity<Publisher> buscarPorId(
-            @PathVariable Long id) {
-
-        Publisher publisher = service.findById(id);
-
-        return ResponseEntity.ok(publisher);
+    public ResponseEntity<PublisherResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // 201 Created - Criação de recurso
     @PostMapping
-    public ResponseEntity<Publisher> criar(
-            @RequestBody Publisher publisher) {
-
-        Publisher novoPublisher =
-                service.create(publisher);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoPublisher);
+    public ResponseEntity<PublisherResponseDTO> criar(@RequestBody PublisherRequestDTO dto) {
+        PublisherResponseDTO novoPublisher = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoPublisher);
     }
 
-    // 200 OK - Atualização de recurso
     @PutMapping("/{id}")
-    public ResponseEntity<Publisher> atualizar(
+    public ResponseEntity<PublisherResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody Publisher publisher) {
-
-        publisher.setId(id);
-
-        Publisher publisherAtualizado =
-                service.update(publisher);
-
-        return ResponseEntity.ok(
-                publisherAtualizado
-        );
+            @RequestBody PublisherRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    // 204 No Content - Remoção
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-            @PathVariable Long id) {
-
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

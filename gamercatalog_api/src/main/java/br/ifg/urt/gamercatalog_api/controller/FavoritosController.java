@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import br.ifg.urt.gamercatalog_api.model.Favoritos;
+import br.ifg.urt.gamercatalog_api.dto.request.FavoritosRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.FavoritosResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.FavoritosService;
 
 @RestController
@@ -17,38 +18,25 @@ public class FavoritosController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens (Aceita o filtro opcional ?usuarioId=X)
     @GetMapping
-    public ResponseEntity<List<Favoritos>> buscarTodos(
+    public ResponseEntity<List<FavoritosResponseDTO>> buscarTodos(
             @RequestParam(required = false) Long usuarioId) {
 
         if (usuarioId != null) {
-            List<Favoritos> favoritosPorUsuario = service.findByUsuario(usuarioId);
-            return ResponseEntity.ok(favoritosPorUsuario);
+            return ResponseEntity.ok(service.findByUsuario(usuarioId));
         }
-
-        List<Favoritos> favoritos = service.findAll();
-
-        return ResponseEntity.ok(favoritos);
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Favoritos> buscarPorId(@PathVariable Long id) {
-        Favoritos favorito = service.findById(id);
-        return ResponseEntity.ok(favorito);
+    public ResponseEntity<FavoritosResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Favoritos> criar(@RequestBody Favoritos favorito) {
-        Favoritos novoFavorito = service.create(favorito);
+    public ResponseEntity<FavoritosResponseDTO> criar(@RequestBody FavoritosRequestDTO dto) {
+        FavoritosResponseDTO novoFavorito = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFavorito);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Favoritos> atualizar(@PathVariable Long id, @RequestBody Favoritos favorito) {
-        favorito.setIdFavorito(id);
-        Favoritos favoritoAtualizado = service.update(favorito);
-        return ResponseEntity.ok(favoritoAtualizado);
     }
 
     @DeleteMapping("/{id}")

@@ -4,112 +4,67 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.DlcRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.DlcResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.DlcMapper;
 import br.ifg.urt.gamercatalog_api.model.Dlc;
 import br.ifg.urt.gamercatalog_api.repository.DlcRepository;
 
 @Service
 public class DlcService {
 
-    private static final Logger logger =
-            Logger.getLogger(DlcService.class.getName());
+    private static final Logger logger = Logger.getLogger(DlcService.class.getName());
 
-    // Repository para acesso ao banco
     private final DlcRepository repository;
+    private final DlcMapper mapper;
 
-    // Injeção via construtor
-    public DlcService(DlcRepository repository) {
+    public DlcService(DlcRepository repository, DlcMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca uma DLC por ID
-     */
-    public Dlc findById(Long id) {
-
+    public DlcResponseDTO findById(Long id) {
         logger.info("Buscando DLC no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("DLC ID " + id + " não encontrada.");
-
-                    return new RuntimeException(
-                            "DLC não encontrada"
-                    );
-                });
+        Dlc dlc = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
+        return mapper.toResponseDTO(dlc);
     }
 
-    /**
-     * Busca todas as DLCs
-     */
-    public List<Dlc> findAll() {
-
+    public List<DlcResponseDTO> findAll() {
         logger.info("Buscando todas as DLCs no banco.");
-
-        return repository.findAll();
+        return mapper.toResponseDTOList(repository.findAll());
     }
 
-    /**
-     * REGRA DE NEGÓCIO: Busca apenas as DLCs vinculadas a um jogo específico
-     */
-    public List<Dlc> findByJogo(Long jogoId) {
-
+    public List<DlcResponseDTO> findByJogo(Long jogoId) {
         logger.info("Buscando DLCs no banco para o jogo ID: " + jogoId);
-
-        return repository.findByJogoId(jogoId);
+        return mapper.toResponseDTOList(repository.findByJogoId(jogoId));
     }
 
-    /**
-     * Cria uma nova DLC
-     */
-    public Dlc create(Dlc dlc) {
-
-        logger.info("Salvando nova DLC no banco: " + dlc.getNome());
-
-        return repository.save(dlc);
+    public DlcResponseDTO create(DlcRequestDTO dto) {
+        logger.info("Salvando nova DLC via DTO no banco.");
+        Dlc dlc = mapper.toEntity(dto);
+        Dlc salva = repository.save(dlc);
+        return mapper.toResponseDTO(salva);
     }
 
-    /**
-     * Atualiza uma DLC existente
-     */
     @Transactional
-    public Dlc update(Dlc dlc) {
-
-        logger.info("Atualizando DLC ID: " + dlc.getId());
-
-        Dlc existing = repository.findById(dlc.getId())
-                .orElseThrow(() -> {
-
-                    logger.warning("DLC ID " + dlc.getId() + " não encontrada.");
-
-                    return new RuntimeException(
-                            "DLC não encontrada"
-                    );
-                });
-
-        existing.setNome(dlc.getNome());
-        existing.setPreco(dlc.getPreco());
-
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove uma DLC
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo DLC ID: " + id);
+    public DlcResponseDTO update(Long id, DlcRequestDTO dto) {
+        logger.info("Atualizando DLC ID: " + id);
 
         Dlc existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
 
-                    logger.warning("DLC ID " + id + " não encontrada.");
+        existing.setNome(dto.nome());
+        existing.setPreco(dto.preco());
 
-                    return new RuntimeException(
-                            "DLC não encontrada"
-                    );
-                });
+        Dlc atualizada = repository.save(existing);
+        return mapper.toResponseDTO(atualizada);
+    }
 
+    public void delete(Long id) {
+        logger.info("Removendo DLC ID: " + id);
+        Dlc existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
         repository.delete(existing);
     }
 }

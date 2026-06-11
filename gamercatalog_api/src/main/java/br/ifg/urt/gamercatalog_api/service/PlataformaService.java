@@ -4,117 +4,62 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.PlataformaRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.PlataformaResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.PlataformaMapper;
 import br.ifg.urt.gamercatalog_api.model.Plataforma;
 import br.ifg.urt.gamercatalog_api.repository.PlataformaRepository;
 
 @Service
 public class PlataformaService {
 
-    private static final Logger logger =
-            Logger.getLogger(PlataformaService.class.getName());
+    private static final Logger logger = Logger.getLogger(PlataformaService.class.getName());
 
-    // Repository para acesso ao banco
     private final PlataformaRepository repository;
+    private final PlataformaMapper mapper;
 
-    // Injeção via construtor
-    public PlataformaService(PlataformaRepository repository) {
+    public PlataformaService(PlataformaRepository repository, PlataformaMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca uma plataforma por ID
-     */
-    public Plataforma findById(Long id) {
-
+    public PlataformaResponseDTO findById(Long id) {
         logger.info("Buscando plataforma no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Plataforma ID "
-                            + id
-                            + " não encontrada.");
-
-                    return new RuntimeException(
-                            "Plataforma não encontrada"
-                    );
-                });
+        Plataforma plataforma = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
+        return mapper.toResponseDTO(plataforma);
     }
 
-    /**
-     * Busca todas as plataformas
-     */
-    public List<Plataforma> findAll() {
-
+    public List<PlataformaResponseDTO> findAll() {
         logger.info("Buscando todas as plataformas no banco.");
-
-        return repository.findAll();
+        return mapper.toResponseDTOList(repository.findAll());
     }
 
-    /**
-     * Cria uma nova plataforma
-     */
-    public Plataforma create(Plataforma plataforma) {
-
-        logger.info("Salvando nova plataforma no banco: "
-                + plataforma.getNome());
-
-        // save() cria no banco
-        return repository.save(plataforma);
+    public PlataformaResponseDTO create(PlataformaRequestDTO dto) {
+        logger.info("Salvando nova plataforma via DTO no banco.");
+        Plataforma plataforma = mapper.toEntity(dto);
+        Plataforma salva = repository.save(plataforma);
+        return mapper.toResponseDTO(salva);
     }
 
-    /**
-     * Atualiza uma plataforma existente
-     */
     @Transactional
-    public Plataforma update(Plataforma plataforma) {
-
-        logger.info("Atualizando plataforma ID: "
-                + plataforma.getId());
-
-        // Verifica existência
-        Plataforma existing = repository.findById(
-                        plataforma.getId()
-                )
-                .orElseThrow(() -> {
-
-                    logger.warning("Plataforma ID "
-                            + plataforma.getId()
-                            + " não encontrada.");
-
-                    return new RuntimeException(
-                            "Plataforma não encontrada"
-                    );
-                });
-
-        existing.setNome(plataforma.getNome());
-        existing.setFabricante(
-                plataforma.getFabricante()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove uma plataforma
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo plataforma ID: " + id);
+    public PlataformaResponseDTO update(Long id, PlataformaRequestDTO dto) {
+        logger.info("Atualizando plataforma ID: " + id);
 
         Plataforma existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
 
-                    logger.warning("Plataforma ID "
-                            + id
-                            + " não encontrada.");
+        existing.setNome(dto.nome());
+        existing.setFabricante(dto.fabricante());
 
-                    return new RuntimeException(
-                            "Plataforma não encontrada"
-                    );
-                });
+        Plataforma atualizada = repository.save(existing);
+        return mapper.toResponseDTO(atualizada);
+    }
 
+    public void delete(Long id) {
+        logger.info("Removendo plataforma ID: " + id);
+        Plataforma existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
         repository.delete(existing);
     }
 }

@@ -1,12 +1,11 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import br.ifg.urt.gamercatalog_api.model.Jogo;
+import br.ifg.urt.gamercatalog_api.dto.request.JogoRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.JogoService;
 
 @RestController
@@ -19,53 +18,32 @@ public class JogoController {
         this.service = service;
     }
 
-    // 200 OK - Padrão para listagens
     @GetMapping
-    public ResponseEntity<List<Jogo>> buscarTodos() {
-
-        List<Jogo> jogos = service.findAll();
-
-        return ResponseEntity.ok(jogos);
+    public ResponseEntity<List<JogoResponseDTO>> buscarTodos() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // 200 OK - Padrão para busca individual bem-sucedida
     @GetMapping("/{id}")
-    public ResponseEntity<Jogo> buscarPorId(@PathVariable Long id) {
-
-        Jogo jogo = service.findById(id);
-
-        return ResponseEntity.ok(jogo);
+    public ResponseEntity<JogoResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // 201 Created - Padrão para criação de recursos
     @PostMapping
-    public ResponseEntity<Jogo> criar(@RequestBody Jogo jogo) {
-
-        Jogo novoJogo = service.create(jogo);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoJogo);
+    public ResponseEntity<JogoResponseDTO> criar(@RequestBody JogoRequestDTO dto) {
+        JogoResponseDTO novoJogo = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoJogo);
     }
 
-    // 200 OK - Recurso atualizado com sucesso
     @PutMapping("/{id}")
-    public ResponseEntity<Jogo> atualizar(
+    public ResponseEntity<JogoResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody Jogo jogo) {
-
-        jogo.setId(id);
-
-        Jogo jogoAtualizado = service.update(jogo);
-
-        return ResponseEntity.ok(jogoAtualizado);
+            @RequestBody JogoRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    // 204 No Content - Padrão para remoção
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

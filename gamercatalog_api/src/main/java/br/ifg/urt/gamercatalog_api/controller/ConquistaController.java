@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import br.ifg.urt.gamercatalog_api.model.Conquista;
+import br.ifg.urt.gamercatalog_api.dto.request.ConquistaRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.ConquistaResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.ConquistaService;
 
 @RestController
@@ -17,59 +18,37 @@ public class ConquistaController {
         this.service = service;
     }
 
-    // Listar conquistas (Aceita o filtro opcional ?usuarioId=X)
     @GetMapping
-    public ResponseEntity<List<Conquista>> buscarTodos(
+    public ResponseEntity<List<ConquistaResponseDTO>> buscarTodos(
             @RequestParam(required = false) Long usuarioId) {
 
         if (usuarioId != null) {
-            List<Conquista> conquistasPorUsuario = service.findByUsuario(usuarioId);
-            return ResponseEntity.ok(conquistasPorUsuario);
+            return ResponseEntity.ok(service.findByUsuario(usuarioId));
         }
-
-        List<Conquista> conquistas = service.findAll();
-
-        return ResponseEntity.ok(conquistas);
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // Buscar conquista por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Conquista> buscarPorId(@PathVariable Long id) {
-
-        Conquista conquista = service.findById(id);
-
-        return ResponseEntity.ok(conquista);
+    public ResponseEntity<ConquistaResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // Cadastrar nova conquista
     @PostMapping
-    public ResponseEntity<Conquista> criar(@RequestBody Conquista conquista) {
-
-        Conquista novaConquista = service.create(conquista);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novaConquista);
+    public ResponseEntity<ConquistaResponseDTO> criar(@RequestBody ConquistaRequestDTO dto) {
+        ConquistaResponseDTO novaConquista = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaConquista);
     }
 
-    // Atualizar conquista
     @PutMapping("/{id}")
-    public ResponseEntity<Conquista> atualizar(
+    public ResponseEntity<ConquistaResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody Conquista conquista) {
-
-        conquista.setId(id);
-
-        Conquista conquistaAtualizada = service.update(conquista);
-
-        return ResponseEntity.ok(conquistaAtualizada);
+            @RequestBody ConquistaRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    // Deletar conquista
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

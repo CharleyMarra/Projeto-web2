@@ -4,117 +4,62 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.PublisherRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.PublisherMapper;
 import br.ifg.urt.gamercatalog_api.model.Publisher;
 import br.ifg.urt.gamercatalog_api.repository.PublisherRepository;
 
 @Service
 public class PublisherService {
 
-    private static final Logger logger =
-            Logger.getLogger(PublisherService.class.getName());
+    private static final Logger logger = Logger.getLogger(PublisherService.class.getName());
 
-    // Repository para acesso ao banco
     private final PublisherRepository repository;
+    private final PublisherMapper mapper;
 
-    // Injeção via construtor
-    public PublisherService(PublisherRepository repository) {
+    public PublisherService(PublisherRepository repository, PublisherMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca um publisher por ID
-     */
-    public Publisher findById(Long id) {
-
+    public PublisherResponseDTO findById(Long id) {
         logger.info("Buscando publisher no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Publisher ID "
-                            + id
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
+        Publisher publisher = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
+        return mapper.toResponseDTO(publisher);
     }
 
-    /**
-     * Busca todos os publishers
-     */
-    public List<Publisher> findAll() {
-
+    public List<PublisherResponseDTO> findAll() {
         logger.info("Buscando todos os publishers no banco.");
-
-        return repository.findAll();
+        return mapper.toResponseDTOList(repository.findAll());
     }
 
-    /**
-     * Cria um novo publisher
-     */
-    public Publisher create(Publisher publisher) {
-
-        logger.info("Salvando novo publisher no banco: "
-                + publisher.getNome());
-
-        // save() cria no banco
-        return repository.save(publisher);
+    public PublisherResponseDTO create(PublisherRequestDTO dto) {
+        logger.info("Salvando novo publisher via DTO no banco.");
+        Publisher publisher = mapper.toEntity(dto);
+        Publisher salvo = repository.save(publisher);
+        return mapper.toResponseDTO(salvo);
     }
 
-    /**
-     * Atualiza um publisher existente
-     */
     @Transactional
-    public Publisher update(Publisher publisher) {
-
-        logger.info("Atualizando publisher ID: "
-                + publisher.getId());
-
-        // Verifica existência
-        Publisher existing = repository.findById(
-                        publisher.getId()
-                )
-                .orElseThrow(() -> {
-
-                    logger.warning("Publisher ID "
-                            + publisher.getId()
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
-
-        existing.setNome(publisher.getNome());
-        existing.setSede(
-                publisher.getSede()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove um publisher
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo publisher ID: " + id);
+    public PublisherResponseDTO update(Long id, PublisherRequestDTO dto) {
+        logger.info("Atualizando publisher ID: " + id);
 
         Publisher existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
 
-                    logger.warning("Publisher ID "
-                            + id
-                            + " não encontrado.");
+        existing.setNome(dto.nome());
+        existing.setSede(dto.paisSede());
 
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
+        Publisher atualizado = repository.save(existing);
+        return mapper.toResponseDTO(atualizado);
+    }
 
+    public void delete(Long id) {
+        logger.info("Removendo publisher ID: " + id);
+        Publisher existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
         repository.delete(existing);
     }
 }

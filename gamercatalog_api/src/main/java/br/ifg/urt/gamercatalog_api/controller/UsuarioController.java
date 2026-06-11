@@ -1,12 +1,11 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import br.ifg.urt.gamercatalog_api.model.Usuario;
+import br.ifg.urt.gamercatalog_api.dto.request.UsuarioRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.UsuarioService;
 
 @RestController
@@ -19,53 +18,32 @@ public class UsuarioController {
         this.service = service;
     }
 
-    // Listar todos os usuários
     @GetMapping
-    public ResponseEntity<List<Usuario>> buscarTodos() {
-
-        List<Usuario> usuarios = service.findAll();
-
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarTodos() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // Buscar usuário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
-
-        Usuario usuario = service.findById(id);
-
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // Cadastrar novo usuário
     @PostMapping
-    public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
-
-        Usuario novoUsuario = service.create(usuario);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoUsuario);
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody UsuarioRequestDTO dto) {
+        UsuarioResponseDTO novoUsuario = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
-    // Atualizar usuário
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(
+    public ResponseEntity<UsuarioResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody Usuario usuario) {
-
-        usuario.setId(id);
-
-        Usuario usuarioAtualizado = service.update(usuario);
-
-        return ResponseEntity.ok(usuarioAtualizado);
+            @RequestBody UsuarioRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    // Deletar usuário
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

@@ -4,148 +4,73 @@ import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.JogoRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
+import br.ifg.urt.gamercatalog_api.mapper.JogoMapper;
 import br.ifg.urt.gamercatalog_api.model.Jogo;
 import br.ifg.urt.gamercatalog_api.repository.JogoRepository;
 
 @Service
 public class JogoService {
 
-    private static final Logger logger =
-            Logger.getLogger(JogoService.class.getName());
+    private static final Logger logger = Logger.getLogger(JogoService.class.getName());
 
-    // Repository para acesso ao banco
     private final JogoRepository repository;
+    private final JogoMapper mapper;
 
-    // Injeção via construtor
-    public JogoService(JogoRepository repository) {
+    public JogoService(JogoRepository repository, JogoMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca um jogo por ID
-     */
-    public Jogo findById(Long id) {
-
+    public JogoResponseDTO findById(Long id) {
         logger.info("Buscando jogo no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Jogo ID " + id + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Jogo não encontrado"
-                    );
-                });
+        Jogo jogo = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+        return mapper.toResponseDTO(jogo);
     }
 
-    /**
-     * Busca todos os jogos
-     */
-    public List<Jogo> findAll() {
-
+    public List<JogoResponseDTO> findAll() {
         logger.info("Buscando todos os jogos no banco.");
-
-        return repository.findAll();
+        return mapper.toResponseDTOList(repository.findAll());
     }
 
-    /**
-     * Cria um novo jogo
-     */
-    public Jogo create(Jogo jogo) {
+    public JogoResponseDTO create(JogoRequestDTO dto) {
+        logger.info("Salvando novo jogo via DTO no banco.");
+        Jogo jogo = mapper.toEntity(dto);
+        
+        // Se houver algum valor padrão/inicial que venha do DTO, pode-se tratar aqui. 
+        // Nota: preco não foi mapeado no DTO enviado, caso precise, adicione-o no record.
+        if(jogo.getPreco() == null) {
+            jogo.setPreco(0.0); 
+        }
+        if(jogo.getClassificacaoIndicativa() == null) {
+            jogo.setClassificacaoIndicativa(0);
+        }
 
-        logger.info("Salvando novo jogo no banco: "
-                + jogo.getTitulo());
-
-        // save() cria no banco
-        return repository.save(jogo);
+        Jogo salvo = repository.save(jogo);
+        return mapper.toResponseDTO(salvo);
     }
 
-    /**
-     * Atualiza um jogo existente
-     */
     @Transactional
-    public Jogo update(Jogo jogo) {
-
-        logger.info("Atualizando jogo ID: "
-                + jogo.getId());
-
-        // Verifica existência
-        Jogo existing = repository.findById(jogo.getId())
-                .orElseThrow(() -> {
-
-                    logger.warning("Jogo ID "
-                            + jogo.getId()
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Jogo não encontrado"
-                    );
-                });
-
-        existing.setTitulo(jogo.getTitulo());
-        existing.setDescricao(jogo.getDescricao());
-        existing.setPreco(jogo.getPreco());
-        existing.setGenero(jogo.getGenero());
-        existing.setClassificacaoIndicativa(
-                jogo.getClassificacaoIndicativa()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove um jogo
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo jogo ID: " + id);
+    public JogoResponseDTO update(Long id, JogoRequestDTO dto) {
+        logger.info("Atualizando jogo ID: " + id);
 
         Jogo existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
 
-                    logger.warning("Jogo ID "
-                            + id
-                            + " não encontrado.");
+        existing.setTitulo(dto.nome()); // Mantendo a coerência com as regras do mapper
+        existing.setDescricao(dto.descricao());
+        existing.setGenero(dto.genero());
 
-                    return new RuntimeException(
-                            "Jogo não encontrado"
-                    );
-                });
-
-        repository.delete(existing);
+        Jogo atualizado = repository.save(existing);
+        return mapper.toResponseDTO(atualizado);
     }
 
-    /**
-     * Altera o preço do jogo
-     */
-    @Transactional
-    public Jogo alterarPreco(Long id, Double novoPreco) {
-
-        Jogo jogo = repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Jogo ID "
-                            + id
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Jogo não encontrado"
-                    );
-                });
-
-        logger.info("Alterando preço do jogo: "
-                + jogo.getTitulo());
-
-        // Regra de negócio no Model
-        jogo.alterarPreco(novoPreco);
-
-        // Salva atualização
-        Jogo jogoAtualizado = repository.save(jogo);
-
-        logger.info("Preço atualizado com sucesso.");
-
-        return jogoAtualizado;
+    public void delete(Long id) {
+        logger.info("Removendo jogo ID: " + id);
+        Jogo existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+        repository.delete(existing);
     }
 }
