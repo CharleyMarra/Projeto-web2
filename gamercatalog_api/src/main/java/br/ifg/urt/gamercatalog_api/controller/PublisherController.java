@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.PublisherRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.PublisherService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/publishers")
@@ -29,7 +30,7 @@ public class PublisherController {
     }
 
     @PostMapping
-    public ResponseEntity<PublisherResponseDTO> criar(@RequestBody PublisherRequestDTO dto) {
+    public ResponseEntity<PublisherResponseDTO> criar(@Valid @RequestBody PublisherRequestDTO dto) {
         PublisherResponseDTO novoPublisher = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoPublisher);
     }
@@ -37,7 +38,7 @@ public class PublisherController {
     @PutMapping("/{id}")
     public ResponseEntity<PublisherResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody PublisherRequestDTO dto) {
+            @Valid @RequestBody PublisherRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

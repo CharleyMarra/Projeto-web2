@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.AvaliacaoRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.AvaliacaoResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.AvaliacaoService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/avaliacoes")
@@ -34,7 +35,7 @@ public class AvaliacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<AvaliacaoResponseDTO> criar(@RequestBody AvaliacaoRequestDTO dto) {
+    public ResponseEntity<AvaliacaoResponseDTO> criar(@Valid @RequestBody AvaliacaoRequestDTO dto) {
         AvaliacaoResponseDTO novaAvaliacao = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAvaliacao);
     }
@@ -42,7 +43,7 @@ public class AvaliacaoController {
     @PutMapping("/{id}")
     public ResponseEntity<AvaliacaoResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody AvaliacaoRequestDTO dto) {
+            @Valid @RequestBody AvaliacaoRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

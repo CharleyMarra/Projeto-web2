@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.DlcRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.DlcResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.DlcService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/dlcs")
@@ -34,7 +35,7 @@ public class DlcController {
     }
 
     @PostMapping
-    public ResponseEntity<DlcResponseDTO> criar(@RequestBody DlcRequestDTO dto) {
+    public ResponseEntity<DlcResponseDTO> criar(@Valid @RequestBody DlcRequestDTO dto) {
         DlcResponseDTO novaDlc = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaDlc);
     }
@@ -42,7 +43,7 @@ public class DlcController {
     @PutMapping("/{id}")
     public ResponseEntity<DlcResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody DlcRequestDTO dto) {
+            @Valid @RequestBody DlcRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

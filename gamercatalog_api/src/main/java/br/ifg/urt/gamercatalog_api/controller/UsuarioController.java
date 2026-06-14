@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.UsuarioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.UsuarioService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -29,7 +30,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioRequestDTO dto) {
         UsuarioResponseDTO novoUsuario = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
@@ -37,7 +38,7 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody UsuarioRequestDTO dto) {
+            @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

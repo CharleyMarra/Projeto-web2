@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.PlataformaRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.PlataformaResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.PlataformaService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/plataformas")
@@ -29,7 +30,7 @@ public class PlataformaController {
     }
 
     @PostMapping
-    public ResponseEntity<PlataformaResponseDTO> criar(@RequestBody PlataformaRequestDTO dto) {
+    public ResponseEntity<PlataformaResponseDTO> criar(@Valid @RequestBody PlataformaRequestDTO dto) {
         PlataformaResponseDTO novaPlataforma = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaPlataforma);
     }
@@ -37,7 +38,7 @@ public class PlataformaController {
     @PutMapping("/{id}")
     public ResponseEntity<PlataformaResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody PlataformaRequestDTO dto) {
+            @Valid @RequestBody PlataformaRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

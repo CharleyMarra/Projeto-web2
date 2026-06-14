@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.FavoritosRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.FavoritosResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.FavoritosService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/favoritos")
@@ -34,7 +35,7 @@ public class FavoritosController {
     }
 
     @PostMapping
-    public ResponseEntity<FavoritosResponseDTO> criar(@RequestBody FavoritosRequestDTO dto) {
+    public ResponseEntity<FavoritosResponseDTO> criar(@Valid @RequestBody FavoritosRequestDTO dto) {
         FavoritosResponseDTO novoFavorito = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFavorito);
     }

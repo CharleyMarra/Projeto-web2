@@ -1,19 +1,37 @@
 package br.ifg.urt.gamercatalog_api.mapper;
 
-import java.util.List;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 import br.ifg.urt.gamercatalog_api.dto.request.UsuarioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
 import br.ifg.urt.gamercatalog_api.model.Usuario;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
-public interface UsuarioMapper {
+@Component
+public class UsuarioMapper {
 
-    UsuarioResponseDTO toResponseDTO(Usuario usuario);
+    public Usuario toEntity(UsuarioRequestDTO dto) {
+        if (dto == null) return null;
 
-    @Mapping(target = "id", ignore = true)
-    Usuario toEntity(UsuarioRequestDTO dto);
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setSenha(dto.senha());
+        return usuario;
+    }
 
-    List<UsuarioResponseDTO> toResponseDTOList(List<Usuario> usuarios);
+    public UsuarioResponseDTO toResponseDTO(Usuario entity) {
+        if (entity == null) return null;
+
+        return new UsuarioResponseDTO(
+                entity.getId(),
+                entity.getNome(),
+                entity.getEmail()
+        );
+    }
+
+    public List<UsuarioResponseDTO> toResponseDTOList(List<Usuario> entities) {
+        if (entities == null) return null;
+        return entities.stream().map(this::toResponseDTO).collect(Collectors.toList());
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.EstudioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.EstudioResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.EstudioService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/estudios")
@@ -29,7 +30,7 @@ public class EstudioController {
     }
 
     @PostMapping
-    public ResponseEntity<EstudioResponseDTO> criar(@RequestBody EstudioRequestDTO dto) {
+    public ResponseEntity<EstudioResponseDTO> criar(@Valid @RequestBody EstudioRequestDTO dto) {
         EstudioResponseDTO novoEstudio = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoEstudio);
     }
@@ -37,7 +38,7 @@ public class EstudioController {
     @PutMapping("/{id}")
     public ResponseEntity<EstudioResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody EstudioRequestDTO dto) {
+            @Valid @RequestBody EstudioRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

@@ -10,13 +10,15 @@ import br.ifg.urt.gamercatalog_api.model.Jogo;
 @Mapper(componentModel = "spring")
 public interface JogoMapper {
 
-    @Mapping(target = "nome", source = "titulo") // Transforma titulo em nome no DTO
+    @Mapping(target = "nome", source = "titulo")
     JogoResponseDTO toResponseDTO(Jogo j);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "titulo", source = "nome") // Transforma nome do DTO em titulo na Entity
-    @Mapping(target = "estudio.id", source = "estudioId")
-    @Mapping(target = "publisher.id", source = "publisherId")
+    @Mapping(target = "titulo", source = "nome")
+    @Mapping(target = "estudio", ignore = true)  
+    @Mapping(target = "publisher", ignore = true)
+    @Mapping(target = "dlcs", ignore = true)     
+    @Mapping(target = "plataformas", ignore = true) 
     Jogo toEntity(JogoRequestDTO dto);
 
     List<JogoResponseDTO> toResponseDTOList(List<Jogo> jogos);

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.ComentariosRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.ComentariosService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/comentarios")
@@ -41,7 +42,7 @@ public class ComentariosController {
     // Recebe RequestDTO no corpo e devolve um ResponseDTO
     @PostMapping
     public ResponseEntity<ComentariosResponseDTO> criar(
-            @RequestBody ComentariosRequestDTO dto) {
+            @Valid @RequestBody ComentariosRequestDTO dto) {
 
         ComentariosResponseDTO novoComentario = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoComentario);
@@ -51,7 +52,7 @@ public class ComentariosController {
     @PutMapping("/{id}")
     public ResponseEntity<ComentariosResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody ComentariosRequestDTO dto) {
+            @Valid @RequestBody ComentariosRequestDTO dto) {
 
         return ResponseEntity.ok(service.update(id, dto));
     }

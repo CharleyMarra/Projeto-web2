@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.ifg.urt.gamercatalog_api.dto.request.ConquistaRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.ConquistaResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.ConquistaService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/conquistas")
@@ -34,7 +35,7 @@ public class ConquistaController {
     }
 
     @PostMapping
-    public ResponseEntity<ConquistaResponseDTO> criar(@RequestBody ConquistaRequestDTO dto) {
+    public ResponseEntity<ConquistaResponseDTO> criar(@Valid @RequestBody ConquistaRequestDTO dto) {
         ConquistaResponseDTO novaConquista = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaConquista);
     }
@@ -42,7 +43,7 @@ public class ConquistaController {
     @PutMapping("/{id}")
     public ResponseEntity<ConquistaResponseDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody ConquistaRequestDTO dto) {
+            @Valid @RequestBody ConquistaRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
