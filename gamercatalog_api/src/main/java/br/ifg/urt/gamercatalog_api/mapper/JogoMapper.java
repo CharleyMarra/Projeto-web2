@@ -18,7 +18,11 @@ public interface JogoMapper {
     @Mapping(target = "estudio", ignore = true)  
     @Mapping(target = "publisher", ignore = true)
     @Mapping(target = "dlcs", ignore = true)     
-    @Mapping(target = "plataformas", ignore = true) 
+    @Mapping(target = "plataforma", ignore = true) // CORRIGIDO: de "plataformas" para "plataforma"
+    @Mapping(target = "avaliacoes", ignore = true) // Ignorando coleções para não gerar avisos
+    @Mapping(target = "comentarios", ignore = true)
+    @Mapping(target = "conquistas", ignore = true)
+    @Mapping(target = "favoritos", ignore = true)
     Jogo toEntity(JogoRequestDTO dto);
 
     List<JogoResponseDTO> toResponseDTOList(List<Jogo> jogos);

@@ -15,6 +15,7 @@ public interface EstudioMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "pais", source = "paisOrigem")
+    @Mapping(target = "jogos", ignore = true)
     Estudio toEntity(EstudioRequestDTO dto);
 
     List<EstudioResponseDTO> toResponseDTOList(List<Estudio> estudios);

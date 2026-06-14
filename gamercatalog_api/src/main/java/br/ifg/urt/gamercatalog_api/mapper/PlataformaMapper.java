@@ -13,6 +13,7 @@ public interface PlataformaMapper {
     PlataformaResponseDTO toResponseDTO(Plataforma plataforma);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "jogos", ignore = true)
     Plataforma toEntity(PlataformaRequestDTO dto);
 
     List<PlataformaResponseDTO> toResponseDTOList(List<Plataforma> plataformas);

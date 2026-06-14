@@ -157,4 +157,52 @@ public class Jogo implements Serializable {
     public void setPublisher(Publisher publisher) {
         this.publisher = publisher;
     }
+
+    public Plataforma getPlataforma() {
+        return plataforma;
+    }
+
+    public void setPlataforma(Plataforma plataforma) {
+        this.plataforma = plataforma;
+    }
+
+    public List<Avaliacao> getAvaliacoes() {
+        return avaliacoes;
+    }
+
+    public void setAvaliacoes(List<Avaliacao> avaliacoes) {
+        this.avaliacoes = avaliacoes;
+    }
+
+    public List<Comentarios> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentarios> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public List<Dlc> getDlcs() {
+        return dlcs;
+    }
+
+    public void setDlcs(List<Dlc> dlcs) {
+        this.dlcs = dlcs;
+    }
+
+    public List<Conquista> getConquistas() {
+        return conquistas;
+    }
+
+    public void setConquistas(List<Conquista> conquistas) {
+        this.conquistas = conquistas;
+    }
+
+    public List<Favoritos> getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(List<Favoritos> favoritos) {
+        this.favoritos = favoritos;
+    }
 }
