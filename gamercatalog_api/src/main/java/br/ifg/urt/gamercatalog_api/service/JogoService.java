@@ -39,10 +39,9 @@ public class JogoService {
         logger.info("Salvando novo jogo via DTO no banco.");
         Jogo jogo = mapper.toEntity(dto);
         
-        // Se houver algum valor padrão/inicial que venha do DTO, pode-se tratar aqui. 
-        // Nota: preco não foi mapeado no DTO enviado, caso precise, adicione-o no record.
         if(jogo.getPreco() == null) {
-            jogo.setPreco(0.0); 
+            // Usa o método que já criamos para transformar o Double em VO automaticamente
+            jogo.alterarPreco(0.0); 
         }
         if(jogo.getClassificacaoIndicativa() == null) {
             jogo.setClassificacaoIndicativa(0);
@@ -62,6 +61,11 @@ public class JogoService {
         existing.setTitulo(dto.nome()); // Mantendo a coerência com as regras do mapper
         existing.setDescricao(dto.descricao());
         existing.setGenero(dto.genero());
+
+        // Adicione esta linha para garantir que a edição de preço funcione!
+        if (dto.preco() != null) {
+            existing.alterarPreco(dto.preco());
+        }
 
         Jogo atualizado = repository.save(existing);
         return mapper.toResponseDTO(atualizado);
