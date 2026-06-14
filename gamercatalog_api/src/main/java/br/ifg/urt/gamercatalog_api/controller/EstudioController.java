@@ -1,6 +1,5 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +13,9 @@ import br.ifg.urt.gamercatalog_api.dto.request.EstudioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.EstudioResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.EstudioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/estudios")
@@ -28,16 +30,19 @@ public class EstudioController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
-        summary = "Listar todos",
-        description = "Retorna uma lista com todos os registros de estúdios cadastrados.",
+        summary = "Listar estúdios paginados e com filtro",
+        description = "Retorna uma página de estúdios. Permite filtrar por nome e utilizar paginação e ordenação com os parâmetros 'page', 'size' e 'sort'.",
         responses = {
             @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = EstudioResponseDTO.class))),
+                         content = @Content(schema = @Schema(implementation = Page.class))),
             @ApiResponse(description = "Erro Interno", responseCode = "500", content = @Content)
         }
     )
-    public ResponseEntity<List<EstudioResponseDTO>> buscarTodos() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<EstudioResponseDTO>> buscarTodos(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) { 
+        
+        return ResponseEntity.ok(service.findAll(nome, pageable));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.JogoMapper;
 import br.ifg.urt.gamercatalog_api.model.Jogo;
 import br.ifg.urt.gamercatalog_api.repository.JogoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class JogoService {
@@ -30,9 +32,18 @@ public class JogoService {
         return mapper.toResponseDTO(jogo);
     }
 
-    public List<JogoResponseDTO> findAll() {
-        logger.info("Buscando todos os jogos no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<JogoResponseDTO> findAll(String nome, Pageable pageable) { 
+        Page<Jogo> pagina; 
+        
+        // Verifica se o usuário enviou algum nome para filtrar
+        if (nome != null && !nome.isBlank()) { 
+            pagina = repository.findByTituloContainingIgnoreCase(nome, pageable); 
+        } else {
+            pagina = repository.findAll(pageable); 
+        }
+        
+        // O método .map() converte a página de Entidade para página de DTO 
+        return pagina.map(mapper::toResponseDTO); 
     }
 
     public JogoResponseDTO create(JogoRequestDTO dto) {

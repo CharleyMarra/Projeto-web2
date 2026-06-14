@@ -1,12 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import br.ifg.urt.gamercatalog_api.model.Jogo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface JogoRepository
@@ -29,16 +28,14 @@ public interface JogoRepository
     Optional<Jogo> findByTitulo(String titulo);
 
     // Busca por parte do título
-    List<Jogo> findByTituloContainingIgnoreCase(
-            String titulo
-    );
+    Page<Jogo> findByTituloContainingIgnoreCase(String titulo, Pageable pageable);
 
     // Busca por gênero
-    List<Jogo> findByGenero(String genero);
+    Page<Jogo> findByGenero(String genero, Pageable pageable);
 
     // Busca jogos abaixo de determinado preço
-    List<Jogo> findByPrecoLessThan(Double preco);
+    Page<Jogo> findByPrecoLessThan(Double preco, Pageable pageable);
 
     // Ordena por título
-    List<Jogo> findAllByOrderByTituloAsc();
+    Page<Jogo> findAllByOrderByTituloAsc();
 }

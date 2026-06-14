@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.EstudioResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.EstudioMapper;
 import br.ifg.urt.gamercatalog_api.model.Estudio;
 import br.ifg.urt.gamercatalog_api.repository.EstudioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class EstudioService {
@@ -30,9 +32,18 @@ public class EstudioService {
         return mapper.toResponseDTO(estudio);
     }
 
-    public List<EstudioResponseDTO> findAll() {
-        logger.info("Buscando todos os estúdios no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<EstudioResponseDTO> findAll(String nome, Pageable pageable) {
+        Page<Estudio> pagina;
+        
+        // Verifica se o filtro por nome foi enviado
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        
+        // Converte a página de Estudio para EstudioResponseDTO
+        return pagina.map(mapper::toResponseDTO);
     }
 
     public EstudioResponseDTO create(EstudioRequestDTO dto) {

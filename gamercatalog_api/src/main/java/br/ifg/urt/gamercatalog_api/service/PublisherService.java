@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.PublisherMapper;
 import br.ifg.urt.gamercatalog_api.model.Publisher;
 import br.ifg.urt.gamercatalog_api.repository.PublisherRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class PublisherService {
@@ -30,9 +32,18 @@ public class PublisherService {
         return mapper.toResponseDTO(publisher);
     }
 
-    public List<PublisherResponseDTO> findAll() {
-        logger.info("Buscando todos os publishers no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<PublisherResponseDTO> findAll(String nome, Pageable pageable) {
+        Page<Publisher> pagina;
+        
+        // Verifica se o filtro por nome foi enviado
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        
+        // Converte a página de Publisher para PublisherResponseDTO
+        return pagina.map(mapper::toResponseDTO);
     }
 
     public PublisherResponseDTO create(PublisherRequestDTO dto) {

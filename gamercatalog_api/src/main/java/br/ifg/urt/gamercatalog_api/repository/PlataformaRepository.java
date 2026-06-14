@@ -1,10 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import br.ifg.urt.gamercatalog_api.model.Plataforma;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface PlataformaRepository
@@ -28,15 +29,11 @@ public interface PlataformaRepository
     Optional<Plataforma> findByNome(String nome);
 
     // Busca por parte do nome
-    List<Plataforma> findByNomeContainingIgnoreCase(
-            String nome
-    );
+    Page<Plataforma> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
     // Busca por fabricante
-    List<Plataforma> findByFabricante(
-            String fabricante
-    );
+    Page<Plataforma> findByFabricante(String fabricante, Pageable pageable);
 
     // Ordena por nome
-    List<Plataforma> findAllByOrderByNomeAsc();
+    Page<Plataforma> findAllByOrderByNomeAsc();
 }

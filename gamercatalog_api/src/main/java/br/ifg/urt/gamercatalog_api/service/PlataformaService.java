@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.PlataformaResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.PlataformaMapper;
 import br.ifg.urt.gamercatalog_api.model.Plataforma;
 import br.ifg.urt.gamercatalog_api.repository.PlataformaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class PlataformaService {
@@ -30,9 +32,18 @@ public class PlataformaService {
         return mapper.toResponseDTO(plataforma);
     }
 
-    public List<PlataformaResponseDTO> findAll() {
-        logger.info("Buscando todas as plataformas no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<PlataformaResponseDTO> findAll(String nome, Pageable pageable) {
+        Page<Plataforma> pagina;
+        
+        // Verifica se o filtro por nome foi enviado
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        
+        // Converte a página de Plataforma para PlataformaResponseDTO
+        return pagina.map(mapper::toResponseDTO);
     }
 
     public PlataformaResponseDTO create(PlataformaRequestDTO dto) {
