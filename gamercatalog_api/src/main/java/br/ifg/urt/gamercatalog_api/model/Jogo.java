@@ -2,6 +2,7 @@ package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import br.ifg.urt.gamercatalog_api.model.vo.Preco;
 
 @Entity // Indica que esta classe é uma tabela no banco de dados
 @Table(name = "jogos") // Nome da tabela
@@ -28,8 +30,8 @@ public class Jogo implements Serializable {
     @Column(length = 500)
     private String descricao;
 
-    @Column(nullable = false)
-    private Double preco;
+    @Embedded // O banco terá as colunas 'preco_valor' e 'preco_moeda' [cite: 2118]
+    private Preco preco;
 
     @Column(nullable = false, length = 100)
     private String genero;
@@ -69,7 +71,7 @@ public class Jogo implements Serializable {
     }
 
     public Jogo(Long id, String titulo, String descricao,
-                 Double preco, String genero,
+                 Preco preco, String genero,
                  Integer classificacaoIndicativa) {
 
         this.id = id;
@@ -104,11 +106,11 @@ public class Jogo implements Serializable {
         this.descricao = descricao;
     }
 
-    public Double getPreco() {
+    public Preco getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(Preco preco) {
         this.preco = preco;
     }
 
@@ -130,16 +132,8 @@ public class Jogo implements Serializable {
 
     // Método de regra de negócio
     public void alterarPreco(Double novoPreco) {
-
-        // Validação
-        if (novoPreco == null || novoPreco <= 0) {
-            throw new IllegalArgumentException(
-                    "O preço deve ser maior que zero."
-            );
-        }
-
         // Atualização do estado
-        this.preco = novoPreco;
+        this.preco = new Preco(novoPreco, this.preco != null ? this.preco.moeda() : "BRL");
     }
 
     public Estudio getEstudio() {
