@@ -6,22 +6,29 @@ import org.mapstruct.Mapping;
 import br.ifg.urt.gamercatalog_api.dto.request.JogoRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
 import br.ifg.urt.gamercatalog_api.model.Jogo;
+import br.ifg.urt.gamercatalog_api.model.vo.Preco; // IMPORTANTE: Não esqueça do import do VO!
 
 @Mapper(componentModel = "spring")
 public interface JogoMapper {
 
+    // 1. ENSINAMOS O MAPSTRUCT COMO CONVERTER O DOUBLE PARA O RECORD PRECO
+    default Preco mapDoubleToPreco(Double valor) {
+        if (valor == null) {
+            return null;
+        }
+        return new Preco(valor, "BRL"); // Já cria o VO se autovalidando e com a moeda padrão
+    }
+
+    // 2. MAPEAMENTO PARA RESPONSE (Saída)
     @Mapping(target = "nome", source = "titulo")
     @Mapping(target = "preco", source = "preco.valor")
-    // Usa o método do VO para preencher o precoFormatado [cite: 2161]
     @Mapping(target = "precoFormatado", expression = "java(j.getPreco() != null ? j.getPreco().getFormatado() : null)")
     JogoResponseDTO toResponseDTO(Jogo j);
 
-    // Mapeamento de Request DTO para Entidade (com VO)
-    // O MapStruct precisa saber como construir o record Preco a partir do Double do DTO [cite: 2167]
+    // 3. MAPEAMENTO PARA ENTITY (Entrada)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "titulo", source = "nome")
-    @Mapping(target = "preco.valor", source = "preco") // Diz que o 'preco' do DTO vai para dentro do 'valor' do VO
-    @Mapping(target = "preco.moeda", constant = "BRL") // Define moeda padrão na criação [cite: 2169]
+    @Mapping(target = "preco", source = "preco") // Agora basta apontar "preco" para "preco". Ele usará o método default automaticamente!
     @Mapping(target = "estudio", ignore = true)  
     @Mapping(target = "publisher", ignore = true)
     @Mapping(target = "plataforma", ignore = true) 
