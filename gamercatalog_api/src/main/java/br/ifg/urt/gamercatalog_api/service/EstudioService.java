@@ -3,19 +3,21 @@ package br.ifg.urt.gamercatalog_api.service;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import br.ifg.urt.gamercatalog_api.dto.request.EstudioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.EstudioResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.EstudioMapper;
 import br.ifg.urt.gamercatalog_api.model.Estudio;
 import br.ifg.urt.gamercatalog_api.repository.EstudioRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 @Service
 public class EstudioService {
 
     private static final Logger logger = Logger.getLogger(EstudioService.class.getName());
-
     private final EstudioRepository repository;
     private final EstudioMapper mapper;
 
@@ -24,6 +26,7 @@ public class EstudioService {
         this.mapper = mapper;
     }
 
+    @Cacheable(value = "estudios", key = "#id")
     public EstudioResponseDTO findById(Long id) {
         logger.info("Buscando estúdio no banco com ID: " + id);
         Estudio estudio = repository.findById(id)
@@ -31,6 +34,7 @@ public class EstudioService {
         return mapper.toResponseDTO(estudio);
     }
 
+    @Cacheable(value = "estudiosPaginados", key = "{ #nome, #pageable.pageNumber, #pageable.pageSize, #pageable.sort }")
     public Page<EstudioResponseDTO> findAll(String nome, Pageable pageable) {
         Page<Estudio> pagina;
         
@@ -45,6 +49,7 @@ public class EstudioService {
         return pagina.map(mapper::toResponseDTO);
     }
 
+    @CacheEvict(value = "estudiosPaginados", allEntries = true)
     public EstudioResponseDTO create(EstudioRequestDTO dto) {
         logger.info("Salvando novo estúdio via DTO no banco.");
         Estudio estudio = mapper.toEntity(dto);
@@ -52,6 +57,10 @@ public class EstudioService {
         return mapper.toResponseDTO(salvo);
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "estudios", key = "#id"),
+        @CacheEvict(value = "estudiosPaginados", allEntries = true)
+    })
     @Transactional
     public EstudioResponseDTO update(Long id, EstudioRequestDTO dto) {
         logger.info("Atualizando estúdio ID: " + id);
@@ -66,6 +75,10 @@ public class EstudioService {
         return mapper.toResponseDTO(atualizado);
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "estudios", key = "#id"),
+        @CacheEvict(value = "estudiosPaginados", allEntries = true)
+    })
     public void delete(Long id) {
         logger.info("Removendo estúdio ID: " + id);
         Estudio existing = repository.findById(id)
