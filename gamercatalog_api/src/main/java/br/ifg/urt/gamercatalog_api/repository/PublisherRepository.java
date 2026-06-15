@@ -35,5 +35,5 @@ public interface PublisherRepository
     Page<Publisher> findBySede(String sede, Pageable pageable);
 
     // Ordena por nome
-    Page<Publisher> findAllByOrderByNomeAsc();
+    Page<Publisher> findAllByOrderByNomeAsc(Pageable pageable);
 }

@@ -27,5 +27,5 @@ public interface FavoritosRepository
 
     Optional<Favoritos> findByUsuarioAndJogo(Usuario usuario, Jogo jogo);
 
-    Page<Favoritos> findAllByOrderByDataAdicionadoAsc();
+    Page<Favoritos> findAllByOrderByDataAdicionadoAsc(Pageable pageable);
 }

@@ -1,6 +1,5 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -36,5 +35,5 @@ public interface EstudioRepository
     Page<Estudio> findByPais(String pais, Pageable pageable);
 
     // Ordena por nome
-    Page<Estudio> findAllByOrderByNomeAsc();
+    Page<Estudio> findAllByOrderByNomeAsc(Pageable pageable);
 }

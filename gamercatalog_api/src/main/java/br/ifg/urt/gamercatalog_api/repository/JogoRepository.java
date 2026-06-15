@@ -37,5 +37,5 @@ public interface JogoRepository
     Page<Jogo> findByPrecoLessThan(Double preco, Pageable pageable);
 
     // Ordena por título
-    Page<Jogo> findAllByOrderByTituloAsc();
+    Page<Jogo> findAllByOrderByTituloAsc(Pageable pageable);
 }

@@ -37,5 +37,5 @@ public interface ComentariosRepository
     Page<Comentarios> findByJogoId(Long jogoId, Pageable pageable);
 
     // Ordena comentários por data/hora
-    Page<Comentarios> findAllByOrderByDataHoraDesc();
+    Page<Comentarios> findAllByOrderByDataHoraDesc(Pageable pageable);
 }

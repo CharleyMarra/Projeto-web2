@@ -35,5 +35,5 @@ public interface PlataformaRepository
     Page<Plataforma> findByFabricante(String fabricante, Pageable pageable);
 
     // Ordena por nome
-    Page<Plataforma> findAllByOrderByNomeAsc();
+    Page<Plataforma> findAllByOrderByNomeAsc(Pageable pageable);
 }
