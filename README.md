@@ -113,7 +113,13 @@ A aplicação foi projetada sob o paradigma de Separação de Preocupações (So
 
 # ⚙️ **Implementação:**
 
-O ecossistema do código foi distribuído em módulos lógicos bem definidos, organizando as frentes de engenharia entre os membros do time:
+A GamerCatalog API foi desenvolvida em Java 21 utilizando Spring Boot, Spring Data JPA, MapStruct e MySQL, seguindo uma arquitetura em camadas composta por Controller, Service, Repository, Model, DTO e Mapper.
+
+Os controllers disponibilizam os endpoints REST para gerenciamento de usuários, jogos, plataformas, estúdios, publishers, avaliações, comentários, favoritos, DLCs e conquistas. As regras de negócio são tratadas na camada Service, enquanto a persistência dos dados é realizada pelos Repositories através do Spring Data JPA.
+
+Para aumentar a segurança e reduzir o acoplamento, a aplicação utiliza DTOs e MapStruct para conversão entre entidades e objetos de transferência de dados.
+
+Também foi implementada paginação com Pageable nas consultas, melhorando o desempenho em listagens de grandes volumes de dados. Além disso, a API possui documentação interativa gerada com Swagger/OpenAPI, facilitando testes e integração com outros sistemas.
 
 # **📝 Conclusão**
 O desenvolvimento da GamerCatalog API entrega uma infraestrutura robusta focado no gerenciamento centralizado do setor de jogos. A arquitetura implementada comprova que o desacoplamento de software através de DTOs e Mappers protege o domínio contra anomalias de exposição externa.
