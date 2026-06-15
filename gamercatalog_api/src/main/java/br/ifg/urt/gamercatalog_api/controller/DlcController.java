@@ -1,7 +1,8 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page; // Adicionado
+import org.springframework.data.domain.Pageable; // Adicionado
+import org.springframework.data.web.PageableDefault; // Adicionado
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,13 @@ public class DlcController {
         this.service = service;
     }
 
-    // Listar todas as DLCs
+    // Listar todas as DLCs paginadas e com filtro por nome
     @GetMapping
-    public ResponseEntity<List<Dlc>> buscarTodos() {
+    public ResponseEntity<Page<Dlc>> buscarTodos(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
-        List<Dlc> dlcs = service.findAll();
+        Page<Dlc> dlcs = service.findAll(nome, pageable);
 
         return ResponseEntity.ok(dlcs);
     }

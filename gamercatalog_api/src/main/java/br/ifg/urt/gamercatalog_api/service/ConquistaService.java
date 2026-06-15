@@ -1,13 +1,13 @@
 package br.ifg.urt.gamercatalog_api.service;
 
-import java.util.List;
 import java.util.logging.Logger;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
+import org.springframework.data.domain.Page; // Adicionado
+import org.springframework.data.domain.Pageable; // Adicionado
 
 @Service
 public class ConquistaService {
@@ -42,13 +42,20 @@ public class ConquistaService {
     }
 
     /**
-     * Busca todas as conquistas
+     * Busca todas as conquistas paginadas e com filtro opcional por nome (título)
      */
-    public List<Conquista> findAll() {
+    public Page<Conquista> findAll(String nome, Pageable pageable) {
+        logger.info("Buscando todas as conquistas no banco com paginação. Filtro nome: " + nome);
+        Page<Conquista> pagina;
 
-        logger.info("Buscando todas as conquistas no banco.");
+        // Verifica se o usuário enviou algum nome para filtrar pelo título
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByTituloContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
 
-        return repository.findAll();
+        return pagina;
     }
 
     /**
