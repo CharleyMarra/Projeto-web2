@@ -17,7 +17,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @RestController
 @RequestMapping("/comentarios")
 @Tag(name = "Comentários", description = "Endpoints para gerenciamento de Comentários")
