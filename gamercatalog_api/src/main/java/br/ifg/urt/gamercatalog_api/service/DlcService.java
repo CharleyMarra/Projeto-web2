@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.DlcResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.DlcMapper;
 import br.ifg.urt.gamercatalog_api.model.Dlc;
 import br.ifg.urt.gamercatalog_api.repository.DlcRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class DlcService {
@@ -30,14 +32,18 @@ public class DlcService {
         return mapper.toResponseDTO(dlc);
     }
 
-    public List<DlcResponseDTO> findAll() {
-        logger.info("Buscando todas as DLCs no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<DlcResponseDTO> findAll(String nome, Pageable pageable) {
+        Page<Dlc> pagina;
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        return pagina.map(mapper::toResponseDTO);
     }
 
-    public List<DlcResponseDTO> findByJogo(Long jogoId) {
-        logger.info("Buscando DLCs no banco para o jogo ID: " + jogoId);
-        return mapper.toResponseDTOList(repository.findByJogoId(jogoId));
+    public Page<DlcResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable).map(mapper::toResponseDTO);
     }
 
     public DlcResponseDTO create(DlcRequestDTO dto) {

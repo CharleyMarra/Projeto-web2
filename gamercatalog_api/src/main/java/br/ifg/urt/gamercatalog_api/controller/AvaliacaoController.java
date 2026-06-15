@@ -14,6 +14,9 @@ import br.ifg.urt.gamercatalog_api.dto.request.AvaliacaoRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.AvaliacaoResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.AvaliacaoService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/avaliacoes")
@@ -27,65 +30,43 @@ public class AvaliacaoController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Listar todos",
-        description = "Retorna uma lista com todos os registros de avaliações cadastrados.",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
-            @ApiResponse(description = "Erro Interno", responseCode = "500", content = @Content)
-        }
-    )
-    public ResponseEntity<List<AvaliacaoResponseDTO>> buscarTodos(
-            @RequestParam(required = false) Long jogoId) {
+    @Operation(summary = "Listar avaliações paginadas")
+    public ResponseEntity<Page<AvaliacaoResponseDTO>> buscarTodos(
+            @RequestParam(required = false) Long jogoId,
+            @PageableDefault(size = 10, sort = "dataPostagem") Pageable pageable) {
 
         if (jogoId != null) {
-            return ResponseEntity.ok(service.findByJogo(jogoId));
+            return ResponseEntity.ok(service.findByJogo(jogoId, pageable));
         }
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Buscar por ID",
-        description = "Retorna os detalhes de um registro específico de avaliações através do seu id único.",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
+    @Operation(summary = "Buscar por ID", description = "Retorna os detalhes de um registro específico de avaliações através do seu id único.", responses = {
+            @ApiResponse(description = "Sucesso", responseCode = "200", content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content),
             @ApiResponse(description = "ID inválido", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<AvaliacaoResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Criar novo registro",
-        description = "Cadastra um novo registro de avaliações no sistema e retorna o objeto criado.",
-        responses = {
-            @ApiResponse(description = "Criado com sucesso", responseCode = "201",
-                         content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
+    @Operation(summary = "Criar novo registro", description = "Cadastra um novo registro de avaliações no sistema e retorna o objeto criado.", responses = {
+            @ApiResponse(description = "Criado com sucesso", responseCode = "201", content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
             @ApiResponse(description = "Erro de validação", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<AvaliacaoResponseDTO> criar(@Valid @RequestBody AvaliacaoRequestDTO dto) {
         AvaliacaoResponseDTO novaAvaliacao = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAvaliacao);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Atualizar registro",
-        description = "Atualiza todos os dados de um registro existente de avaliações.",
-        responses = {
-            @ApiResponse(description = "Atualizado com sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
+    @Operation(summary = "Atualizar registro", description = "Atualiza todos os dados de um registro existente de avaliações.", responses = {
+            @ApiResponse(description = "Atualizado com sucesso", responseCode = "200", content = @Content(schema = @Schema(implementation = AvaliacaoResponseDTO.class))),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content),
             @ApiResponse(description = "Dados inválidos", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<AvaliacaoResponseDTO> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody AvaliacaoRequestDTO dto) {
@@ -93,14 +74,10 @@ public class AvaliacaoController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(
-        summary = "Excluir registro",
-        description = "Remove um registro de avaliações do sistema pelo seu ID.",
-        responses = {
+    @Operation(summary = "Excluir registro", description = "Remove um registro de avaliações do sistema pelo seu ID.", responses = {
             @ApiResponse(description = "Excluído com sucesso", responseCode = "204", content = @Content),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

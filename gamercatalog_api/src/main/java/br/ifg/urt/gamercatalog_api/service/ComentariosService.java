@@ -1,7 +1,6 @@
 package br.ifg.urt.gamercatalog_api.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,12 +9,13 @@ import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.ComentariosMapper;
 import br.ifg.urt.gamercatalog_api.model.Comentarios;
 import br.ifg.urt.gamercatalog_api.repository.ComentariosRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ComentariosService {
 
-    private static final Logger logger =
-            Logger.getLogger(ComentariosService.class.getName());
+    private static final Logger logger = Logger.getLogger(ComentariosService.class.getName());
 
     private final ComentariosRepository repository;
     private final ComentariosMapper mapper; // INJETADO O MAPPER
@@ -45,23 +45,21 @@ public class ComentariosService {
     /**
      * Busca todos os comentários e retorna a lista em DTO
      */
-    public List<ComentariosResponseDTO> findAll() {
-
-        logger.info("Buscando todos os comentários no banco.");
-        List<Comentarios> comentarios = repository.findAll();
-
-        return mapper.toResponseDTOList(comentarios); // Conversão automática de lista
+    public Page<ComentariosResponseDTO> findAll(String texto, Pageable pageable) {
+        Page<Comentarios> pagina;
+        if (texto != null && !texto.isBlank()) {
+            pagina = repository.findByTextoContainingIgnoreCase(texto, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        return pagina.map(mapper::toResponseDTO);
     }
 
     /**
      * Busca os comentários vinculados a um jogo específico
      */
-    public List<ComentariosResponseDTO> findByJogo(Long jogoId) {
-
-        logger.info("Buscando comentários no banco para o jogo ID: " + jogoId);
-        List<Comentarios> comentarios = repository.findByJogoId(jogoId);
-
-        return mapper.toResponseDTOList(comentarios); // Conversão de lista filtrada
+    public Page<ComentariosResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable).map(mapper::toResponseDTO);
     }
 
     /**
@@ -77,7 +75,7 @@ public class ComentariosService {
 
         // Converte o DTO de entrada para a Entidade que vai pro banco
         Comentarios comentario = mapper.toEntity(dto);
-        
+
         // Aplica a regra de negócio de data automática
         comentario.setDataHora(LocalDateTime.now());
 

@@ -1,6 +1,5 @@
 package br.ifg.urt.gamercatalog_api.service;
 
-import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +8,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.UsuarioMapper;
 import br.ifg.urt.gamercatalog_api.model.Usuario;
 import br.ifg.urt.gamercatalog_api.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class UsuarioService {
@@ -30,10 +31,18 @@ public class UsuarioService {
         return mapper.toResponseDTO(usuario);
     }
 
-    public List<UsuarioResponseDTO> findAll() {
-        logger.info("Buscando todos os usuários no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<UsuarioResponseDTO> findAll(String nome, Pageable pageable) {
+    Page<Usuario> pagina;
+    
+    // Filtra se o nome for informado
+    if (nome != null && !nome.isBlank()) {
+        pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+    } else {
+        pagina = repository.findAll(pageable);
     }
+    
+    return pagina.map(mapper::toResponseDTO);
+}
 
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
         logger.info("Salvando novo usuário via DTO no banco.");

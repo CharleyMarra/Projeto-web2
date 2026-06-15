@@ -14,6 +14,9 @@ import br.ifg.urt.gamercatalog_api.dto.request.UsuarioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -27,17 +30,12 @@ public class UsuarioController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Listar todos",
-        description = "Retorna uma lista com todos os registros de usuários cadastrados.",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))),
-            @ApiResponse(description = "Erro Interno", responseCode = "500", content = @Content)
-        }
-    )
-    public ResponseEntity<List<UsuarioResponseDTO>> buscarTodos() {
-        return ResponseEntity.ok(service.findAll());
+    @Operation(summary = "Listar usuários paginados e com filtro")
+    public ResponseEntity<Page<UsuarioResponseDTO>> buscarTodos(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+    
+        return ResponseEntity.ok(service.findAll(nome, pageable));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

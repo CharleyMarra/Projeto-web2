@@ -14,6 +14,9 @@ import br.ifg.urt.gamercatalog_api.dto.request.ComentariosRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
 import br.ifg.urt.gamercatalog_api.service.ComentariosService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/comentarios")
@@ -28,37 +31,25 @@ public class ComentariosController {
 
     // Retorna a lista enxuta de ResponseDTO (Aceita o filtro opcional ?jogoId=X)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Listar todos",
-        description = "Retorna uma lista com todos os registros de comentários cadastrados.",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
-            @ApiResponse(description = "Erro Interno", responseCode = "500", content = @Content)
-        }
-    )
-    public ResponseEntity<List<ComentariosResponseDTO>> buscarTodos(
-            @RequestParam(required = false) Long jogoId) {
+    @Operation(summary = "Listar comentários paginados e com filtro")
+    public ResponseEntity<Page<ComentariosResponseDTO>> buscarTodos(
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) Long jogoId,
+            @PageableDefault(size = 10, sort = "dataHora") Pageable pageable) { // Ordenação sugerida por data
 
         if (jogoId != null) {
-            return ResponseEntity.ok(service.findByJogo(jogoId));
+            return ResponseEntity.ok(service.findByJogo(jogoId, pageable));
         }
-
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(texto, pageable));
     }
 
     // Retorna a resposta enxuta de um único comentário por ID
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Buscar por ID",
-        description = "Retorna os detalhes de um registro específico de comentários através do seu id único.",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
+    @Operation(summary = "Buscar por ID", description = "Retorna os detalhes de um registro específico de comentários através do seu id único.", responses = {
+            @ApiResponse(description = "Sucesso", responseCode = "200", content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content),
             @ApiResponse(description = "ID inválido", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<ComentariosResponseDTO> buscarPorId(
             @PathVariable Long id) {
 
@@ -67,15 +58,10 @@ public class ComentariosController {
 
     // Recebe RequestDTO no corpo e devolve um ResponseDTO
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Criar novo registro",
-        description = "Cadastra um novo registro de comentários no sistema e retorna o objeto criado.",
-        responses = {
-            @ApiResponse(description = "Criado com sucesso", responseCode = "201",
-                         content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
+    @Operation(summary = "Criar novo registro", description = "Cadastra um novo registro de comentários no sistema e retorna o objeto criado.", responses = {
+            @ApiResponse(description = "Criado com sucesso", responseCode = "201", content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
             @ApiResponse(description = "Erro de validação", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<ComentariosResponseDTO> criar(
             @Valid @RequestBody ComentariosRequestDTO dto) {
 
@@ -85,16 +71,11 @@ public class ComentariosController {
 
     // Atualiza recebendo os novos dados estruturados em DTO
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Atualizar registro",
-        description = "Atualiza todos os dados de um registro existente de comentários.",
-        responses = {
-            @ApiResponse(description = "Atualizado com sucesso", responseCode = "200",
-                         content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
+    @Operation(summary = "Atualizar registro", description = "Atualiza todos os dados de um registro existente de comentários.", responses = {
+            @ApiResponse(description = "Atualizado com sucesso", responseCode = "200", content = @Content(schema = @Schema(implementation = ComentariosResponseDTO.class))),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content),
             @ApiResponse(description = "Dados inválidos", responseCode = "400", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<ComentariosResponseDTO> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody ComentariosRequestDTO dto) {
@@ -103,14 +84,10 @@ public class ComentariosController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(
-        summary = "Excluir registro",
-        description = "Remove um registro de comentários do sistema pelo seu ID.",
-        responses = {
+    @Operation(summary = "Excluir registro", description = "Remove um registro de comentários do sistema pelo seu ID.", responses = {
             @ApiResponse(description = "Excluído com sucesso", responseCode = "204", content = @Content),
             @ApiResponse(description = "Não encontrado", responseCode = "404", content = @Content)
-        }
-    )
+    })
     public ResponseEntity<Void> deletar(
             @PathVariable Long id) {
 

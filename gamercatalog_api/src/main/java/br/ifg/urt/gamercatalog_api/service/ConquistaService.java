@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.ConquistaResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.ConquistaMapper;
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ConquistaService {
@@ -30,14 +32,18 @@ public class ConquistaService {
         return mapper.toResponseDTO(conquista);
     }
 
-    public List<ConquistaResponseDTO> findAll() {
-        logger.info("Buscando todas as conquistas no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<ConquistaResponseDTO> findAll(String titulo, Pageable pageable) {
+        Page<Conquista> pagina;
+        if (titulo != null && !titulo.isBlank()) {
+            pagina = repository.findByTituloContainingIgnoreCase(titulo, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        return pagina.map(mapper::toResponseDTO);
     }
 
-    public List<ConquistaResponseDTO> findByUsuario(Long usuarioId) {
-        logger.info("Buscando conquistas para o usuário ID: " + usuarioId);
-        return mapper.toResponseDTOList(repository.findByUsuarioId(usuarioId));
+    public Page<ConquistaResponseDTO> findByUsuario(Long usuarioId, Pageable pageable) {
+        return repository.findByUsuarioId(usuarioId, pageable).map(mapper::toResponseDTO);
     }
 
     public ConquistaResponseDTO create(ConquistaRequestDTO dto) {

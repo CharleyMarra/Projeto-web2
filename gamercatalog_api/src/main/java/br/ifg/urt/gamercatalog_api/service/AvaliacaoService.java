@@ -10,6 +10,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.AvaliacaoResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.AvaliacaoMapper;
 import br.ifg.urt.gamercatalog_api.model.Avaliacao;
 import br.ifg.urt.gamercatalog_api.repository.AvaliacaoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class AvaliacaoService {
@@ -31,14 +33,12 @@ public class AvaliacaoService {
         return mapper.toResponseDTO(avaliacao);
     }
 
-    public List<AvaliacaoResponseDTO> findAll() {
-        logger.info("Buscando todas as avaliações no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<AvaliacaoResponseDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toResponseDTO);
     }
 
-    public List<AvaliacaoResponseDTO> findByJogo(Long jogoId) {
-        logger.info("Buscando avaliações no banco para o jogo ID: " + jogoId);
-        return mapper.toResponseDTOList(repository.findByJogoId(jogoId));
+    public Page<AvaliacaoResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable).map(mapper::toResponseDTO);
     }
 
     public AvaliacaoResponseDTO create(AvaliacaoRequestDTO dto) {

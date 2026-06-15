@@ -9,6 +9,8 @@ import br.ifg.urt.gamercatalog_api.dto.response.FavoritosResponseDTO;
 import br.ifg.urt.gamercatalog_api.mapper.FavoritosMapper;
 import br.ifg.urt.gamercatalog_api.model.Favoritos;
 import br.ifg.urt.gamercatalog_api.repository.FavoritosRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class FavoritosService {
@@ -30,14 +32,12 @@ public class FavoritosService {
         return mapper.toResponseDTO(favorito);
     }
 
-    public List<FavoritosResponseDTO> findAll() {
-        logger.info("Buscando todos os favoritos no banco.");
-        return mapper.toResponseDTOList(repository.findAll());
+    public Page<FavoritosResponseDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toResponseDTO);
     }
 
-    public List<FavoritosResponseDTO> findByUsuario(Long usuarioId) {
-        logger.info("Buscando favoritos do usuário ID: " + usuarioId);
-        return mapper.toResponseDTOList(repository.findByUsuarioId(usuarioId));
+    public Page<FavoritosResponseDTO> findByUsuario(Long usuarioId, Pageable pageable) {
+        return repository.findByUsuarioId(usuarioId, pageable).map(mapper::toResponseDTO);
     }
 
     public FavoritosResponseDTO create(FavoritosRequestDTO dto) {
@@ -51,8 +51,7 @@ public class FavoritosService {
 
         Optional<Favoritos> existente = repository.findByUsuarioAndJogo(
                 favorito.getUsuario(),
-                favorito.getJogo()
-        );
+                favorito.getJogo());
 
         if (existente.isPresent()) {
             throw new IllegalStateException("Este jogo já está na lista de favoritos deste usuário.");
