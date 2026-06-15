@@ -25,7 +25,7 @@ public class JogoModelAssembler implements RepresentationModelAssembler<JogoResp
 
         // HATEOAS Dinâmico: Você pode interligar seus recursos. 
         // Exemplo: criar um link apontando para as avaliações deste jogo
-        model.add(linkTo(methodOn(AvaliacaoController.class).buscarTodos(dto.id(), null)).withRel("avaliacoes"));
+        model.add(linkTo(methodOn(AvaliacaoController.class).buscarTodos(dto.id(), null, null)).withRel("avaliacoes"));
 
         return model;
     }
