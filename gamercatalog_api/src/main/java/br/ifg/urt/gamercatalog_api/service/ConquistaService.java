@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.ifg.urt.gamercatalog_api.dto.request.ConquistaRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.ConquistaResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.ConquistaMapper;
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
@@ -27,7 +28,7 @@ public class ConquistaService {
     public ConquistaResponseDTO findById(Long id) {
         logger.info("Buscando conquista no banco com ID: " + id);
         Conquista conquista = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conquista não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Conquista com ID " + id + " não foi encontrada."));
         return mapper.toResponseDTO(conquista);
     }
 
@@ -57,7 +58,7 @@ public class ConquistaService {
         logger.info("Atualizando conquista ID: " + id);
 
         Conquista existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conquista não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Conquista com ID " + id + " não existe."));
 
         existing.setTitulo(dto.titulo());
         existing.setRaridade(dto.raridade());
@@ -69,7 +70,7 @@ public class ConquistaService {
     public void delete(Long id) {
         logger.info("Removendo conquista ID: " + id);
         Conquista existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conquista não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Conquista com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

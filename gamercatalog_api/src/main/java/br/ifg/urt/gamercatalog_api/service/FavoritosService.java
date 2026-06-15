@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import br.ifg.urt.gamercatalog_api.dto.request.FavoritosRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.FavoritosResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.FavoritosMapper;
 import br.ifg.urt.gamercatalog_api.model.Favoritos;
 import br.ifg.urt.gamercatalog_api.repository.FavoritosRepository;
@@ -27,7 +28,7 @@ public class FavoritosService {
     public FavoritosResponseDTO findById(Long id) {
         logger.info("Buscando favorito no banco com ID: " + id);
         Favoritos favorito = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Favorito não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Favorito com ID " + id + " não foi encontrado."));
         return mapper.toResponseDTO(favorito);
     }
 
@@ -64,7 +65,7 @@ public class FavoritosService {
     public void delete(Long id) {
         logger.info("Removendo favorito ID: " + id);
         Favoritos existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Favorito não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Favorito com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

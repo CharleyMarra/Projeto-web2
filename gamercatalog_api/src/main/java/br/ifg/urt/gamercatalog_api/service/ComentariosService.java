@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.ifg.urt.gamercatalog_api.dto.request.ComentariosRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.ComentariosResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.ComentariosMapper;
 import br.ifg.urt.gamercatalog_api.model.Comentarios;
 import br.ifg.urt.gamercatalog_api.repository.ComentariosRepository;
@@ -34,10 +35,7 @@ public class ComentariosService {
         logger.info("Buscando comentário no banco com ID: " + id);
 
         Comentarios comentario = repository.findById(id)
-                .orElseThrow(() -> {
-                    logger.warning("Comentário ID " + id + " não encontrado.");
-                    return new RuntimeException("Comentário não encontrado");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Comentário com ID " + id + " não foi encontrado."));
 
         return mapper.toResponseDTO(comentario); // Conversão para DTO
     }
@@ -93,7 +91,7 @@ public class ComentariosService {
         logger.info("Atualizando comentário ID: " + id);
 
         Comentarios existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comentário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Comentário com ID " + id + " não existe."));
 
         // Aplica a regra de negócio de edição contida no Model
         existing.editarComentario(dto.texto());
@@ -110,7 +108,7 @@ public class ComentariosService {
 
         logger.info("Removendo comentário ID: " + id);
         Comentarios existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comentário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Comentário com ID " + id + " não existe."));
 
         repository.delete(existing);
     }

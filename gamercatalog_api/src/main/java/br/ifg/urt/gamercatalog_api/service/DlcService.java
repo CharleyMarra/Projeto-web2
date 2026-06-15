@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import br.ifg.urt.gamercatalog_api.dto.request.DlcRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.DlcResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.DlcMapper;
 import br.ifg.urt.gamercatalog_api.model.Dlc;
 import br.ifg.urt.gamercatalog_api.repository.DlcRepository;
@@ -30,7 +31,7 @@ public class DlcService {
     public DlcResponseDTO findById(Long id) {
         logger.info("Buscando DLC no banco com ID: " + id);
         Dlc dlc = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Dlc com ID " + id + " não foi encontrada."));
         return mapper.toResponseDTO(dlc);
     }
 
@@ -71,7 +72,7 @@ public class DlcService {
         logger.info("Atualizando DLC ID: " + id);
 
         Dlc existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Dlc com ID " + id + " não existe."));
 
         existing.setNome(dto.nome());
         existing.setPreco(dto.preco());
@@ -88,7 +89,7 @@ public class DlcService {
     public void delete(Long id) {
         logger.info("Removendo DLC ID: " + id);
         Dlc existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DLC não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Dlc com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

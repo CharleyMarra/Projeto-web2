@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import br.ifg.urt.gamercatalog_api.dto.request.UsuarioRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.UsuarioResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.UsuarioMapper;
 import br.ifg.urt.gamercatalog_api.model.Usuario;
 import br.ifg.urt.gamercatalog_api.repository.UsuarioRepository;
@@ -30,7 +31,7 @@ public class UsuarioService {
     public UsuarioResponseDTO findById(Long id) {
         logger.info("Buscando usuário no banco com ID: " + id);
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não cadastrado."));
         return mapper.toResponseDTO(usuario);
     }
 
@@ -65,7 +66,7 @@ public class UsuarioService {
         logger.info("Atualizando usuário ID: " + id);
 
         Usuario existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Usuário com ID " + id + " não encontrado."));
 
         existing.setNome(dto.nome());
         existing.setEmail(dto.email());
@@ -82,7 +83,7 @@ public class UsuarioService {
     public void delete(Long id) {
         logger.info("Removendo usuário ID: " + id);
         Usuario existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Usuário com ID " + id + " não encontrado."));
         repository.delete(existing);
     }
 }

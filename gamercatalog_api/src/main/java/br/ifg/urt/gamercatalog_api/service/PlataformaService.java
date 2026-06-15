@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import br.ifg.urt.gamercatalog_api.dto.request.PlataformaRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.PlataformaResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.PlataformaMapper;
 import br.ifg.urt.gamercatalog_api.model.Plataforma;
 import br.ifg.urt.gamercatalog_api.repository.PlataformaRepository;
@@ -30,7 +31,7 @@ public class PlataformaService {
     public PlataformaResponseDTO findById(Long id) {
         logger.info("Buscando plataforma no banco com ID: " + id);
         Plataforma plataforma = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Plataforma com ID " + id + " não foi encontrada."));
         return mapper.toResponseDTO(plataforma);
     }
 
@@ -66,7 +67,7 @@ public class PlataformaService {
         logger.info("Atualizando plataforma ID: " + id);
 
         Plataforma existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Plataforma com ID " + id + " não existe."));
 
         existing.setNome(dto.nome());
         existing.setFabricante(dto.fabricante());
@@ -82,7 +83,7 @@ public class PlataformaService {
     public void delete(Long id) {
         logger.info("Removendo plataforma ID: " + id);
         Plataforma existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Plataforma não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Publisher com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

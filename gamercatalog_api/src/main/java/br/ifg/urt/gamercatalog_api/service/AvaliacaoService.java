@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.ifg.urt.gamercatalog_api.dto.request.AvaliacaoRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.AvaliacaoResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.AvaliacaoMapper;
 import br.ifg.urt.gamercatalog_api.model.Avaliacao;
 import br.ifg.urt.gamercatalog_api.repository.AvaliacaoRepository;
@@ -28,7 +29,7 @@ public class AvaliacaoService {
     public AvaliacaoResponseDTO findById(Long id) {
         logger.info("Buscando avaliação no banco com ID: " + id);
         Avaliacao avaliacao = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Avaliação com ID " + id + " não foi encontrada."));
         return mapper.toResponseDTO(avaliacao);
     }
 
@@ -59,7 +60,7 @@ public class AvaliacaoService {
         logger.info("Atualizando avaliação ID: " + id);
 
         Avaliacao existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Avaliação com ID " + id + " não existe."));
 
         existing.setNota(dto.nota());
         existing.setTextoCritica(dto.textoCritica());
@@ -71,7 +72,7 @@ public class AvaliacaoService {
     public void delete(Long id) {
         logger.info("Removendo avaliação ID: " + id);
         Avaliacao existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Avaliação com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

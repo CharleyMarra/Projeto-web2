@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import br.ifg.urt.gamercatalog_api.dto.request.PublisherRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
 import br.ifg.urt.gamercatalog_api.mapper.PublisherMapper;
 import br.ifg.urt.gamercatalog_api.model.Publisher;
 import br.ifg.urt.gamercatalog_api.repository.PublisherRepository;
@@ -30,7 +31,7 @@ public class PublisherService {
     public PublisherResponseDTO findById(Long id) {
         logger.info("Buscando publisher no banco com ID: " + id);
         Publisher publisher = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher com ID " + id + " não foi encontrada."));
         return mapper.toResponseDTO(publisher);
     }
 
@@ -66,7 +67,7 @@ public class PublisherService {
         logger.info("Atualizando publisher ID: " + id);
 
         Publisher existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Publisher com ID " + id + " não existe."));
 
         existing.setNome(dto.nome());
         existing.setSede(dto.paisSede());
@@ -82,7 +83,7 @@ public class PublisherService {
     public void delete(Long id) {
         logger.info("Removendo publisher ID: " + id);
         Publisher existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Publisher com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }
