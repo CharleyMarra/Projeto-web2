@@ -46,7 +46,7 @@ A **GamerCatalog API** resolve esse problema centralizando esses domínios em um
 | **RF07** | Permitir registro de avaliações de jogos pelos usuários. |
 | **RF08** | Permitir que usuários adicionem jogos à lista de favoritos. |
 | **RF09** | Permitir cadastro de DLCs ou conteúdos adicionais. |
-| **RF10** | Permitir registro de conquistas de jogos. |
+| **RF10** | Permitir registro de conquistas dos jogos. |
 | **RF11** | Permitir que o usuário adicione comentários dos jogos. |
 | **RF12** | Permitir cadastro de estúdios desenvolvedores. |
 
@@ -59,14 +59,6 @@ A **GamerCatalog API** resolve esse problema centralizando esses domínios em um
 | **RNF03** | Os dados devem ser armazenados em um banco de dados relacional. |
 | **RNF04** | O sistema deve possuir atenticação de usuários. |
 | **RNF05** | A API deve possuir documentação dos endpoints. |
-
-
-### Casos de Uso Principais
-
-* **UC01 — Manter Conta de Usuário:** O usuário realiza operações cadastrais e altera seus dados na plataforma.
-* **UC02 — Catalogar Jogo:** Administradores criam jogos amarrando-os obrigatoriamente a uma plataforma, estúdio e publicadora.
-* **UC03 — Interagir com Catálogo:** O usuário cria avaliações ou emite comentários detalhados sobre as experiências jogadas.
-* **UC04 — Expandir Títulos:** O sistema acopla conteúdos de DLCs e listas de conquistas indexadas diretamente ao ID de um Jogo raiz.
 
 ---
 
