@@ -1,8 +1,5 @@
 # 🚀 GamerCatalog Engine
 
-> Enterprise REST API desenvolvida para consolidação, paginação em alta performance e governança de metadados aplicados ao ecossistema de jogos digitais.
-
----
 
 ### 🌐 Informações Institucionais
 * **Entidade de Ensino:** Instituto Federal Goiano (IFG) — Campus Urutaí
