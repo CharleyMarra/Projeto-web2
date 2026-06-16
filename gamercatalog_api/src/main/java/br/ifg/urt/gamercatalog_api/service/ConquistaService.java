@@ -1,113 +1,80 @@
 package br.ifg.urt.gamercatalog_api.service;
 
-import java.util.List;
 import java.util.logging.Logger;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import br.ifg.urt.gamercatalog_api.dto.request.ConquistaRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.ConquistaResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
+import br.ifg.urt.gamercatalog_api.mapper.ConquistaMapper;
 import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class ConquistaService {
 
-    private static final Logger logger =
-            Logger.getLogger(ConquistaService.class.getName());
+    private static final Logger logger = Logger.getLogger(ConquistaService.class.getName());
 
-    // Repository para acesso ao banco
     private final ConquistaRepository repository;
+    private final ConquistaMapper mapper;
 
-    // Injeção via construtor
-    public ConquistaService(ConquistaRepository repository) {
+    public ConquistaService(ConquistaRepository repository, ConquistaMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca uma conquista por ID
-     */
-    public Conquista findById(Long id) {
-
+    public ConquistaResponseDTO findById(Long id) {
         logger.info("Buscando conquista no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Conquista ID " + id + " não encontrada.");
-
-                    return new RuntimeException(
-                            "Conquista não encontrada"
-                    );
-                });
+        Conquista conquista = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Conquista com ID " + id + " não foi encontrada."));
+        return mapper.toResponseDTO(conquista);
     }
 
-    /**
-     * Busca todas as conquistas
-     */
-    public List<Conquista> findAll() {
-
-        logger.info("Buscando todas as conquistas no banco.");
-
-        return repository.findAll();
+    public Page<ConquistaResponseDTO> findAll(String titulo, Pageable pageable) {
+        Page<Conquista> pagina;
+        if (titulo != null && !titulo.isBlank()) {
+            pagina = repository.findByTituloContainingIgnoreCase(titulo, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        return pagina.map(mapper::toResponseDTO);
     }
 
-    /**
-     * Cria uma nova conquista
-     */
-    public Conquista create(Conquista conquista) {
-
-        logger.info("Salvando nova conquista no banco: "
-                + conquista.getTitulo());
-
-        return repository.save(conquista);
+    // Armazena em cache os resultados paginados filtrados por cada ID de jogo
+    @Cacheable(value = "conquistasPorJogo", key = "{ #jogoId, #pageable.pageNumber, #pageable.pageSize, #pageable.sort }")
+    public Page<ConquistaResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable)
+                         .map(mapper::toResponseDTO);
     }
 
-    /**
-     * Atualiza uma conquista existente
-     */
+    public ConquistaResponseDTO create(ConquistaRequestDTO dto) {
+        logger.info("Salvando nova conquista via DTO no banco.");
+        Conquista conquista = mapper.toEntity(dto);
+        Conquista salva = repository.save(conquista);
+        return mapper.toResponseDTO(salva);
+    }
+
     @Transactional
-    public Conquista update(Conquista conquista) {
-
-        logger.info("Atualizando conquista ID: "
-                + conquista.getId());
-
-        Conquista existing = repository.findById(conquista.getId())
-                .orElseThrow(() -> {
-
-                    logger.warning("Conquista ID "
-                            + conquista.getId()
-                            + " não encontrada.");
-
-                    return new RuntimeException(
-                            "Conquista não encontrada"
-                    );
-                });
-
-        existing.setTitulo(conquista.getTitulo());
-        existing.setRaridade(conquista.getRaridade());
-
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove uma conquista
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo conquista ID: " + id);
+    public ConquistaResponseDTO update(Long id, ConquistaRequestDTO dto) {
+        logger.info("Atualizando conquista ID: " + id);
 
         Conquista existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Conquista com ID " + id + " não existe."));
 
-                    logger.warning("Conquista ID "
-                            + id
-                            + " não encontrada.");
+        existing.setTitulo(dto.titulo());
+        existing.setRaridade(dto.raridade());
 
-                    return new RuntimeException(
-                            "Conquista não encontrada"
-                    );
-                });
+        Conquista atualizada = repository.save(existing);
+        return mapper.toResponseDTO(atualizada);
+    }
 
+    public void delete(Long id) {
+        logger.info("Removendo conquista ID: " + id);
+        Conquista existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Conquista com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

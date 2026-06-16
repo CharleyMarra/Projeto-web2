@@ -1,184 +1,78 @@
 package br.ifg.urt.gamercatalog_api.service;
 
-import java.util.List;
+import java.time.LocalDate;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ifg.urt.gamercatalog_api.dto.request.AvaliacaoRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.AvaliacaoResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
+import br.ifg.urt.gamercatalog_api.mapper.AvaliacaoMapper;
 import br.ifg.urt.gamercatalog_api.model.Avaliacao;
 import br.ifg.urt.gamercatalog_api.repository.AvaliacaoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class AvaliacaoService {
 
-    private static final Logger logger =
-            Logger.getLogger(AvaliacaoService.class.getName());
+    private static final Logger logger = Logger.getLogger(AvaliacaoService.class.getName());
 
-    // Repository para acesso ao banco
     private final AvaliacaoRepository repository;
+    private final AvaliacaoMapper mapper;
 
-    // Injeção via construtor
-    public AvaliacaoService(AvaliacaoRepository repository) {
+    public AvaliacaoService(AvaliacaoRepository repository, AvaliacaoMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca uma avaliação por ID
-     */
-    public Avaliacao findById(Long id) {
-
-        logger.info(
-                "Buscando avaliação no banco com ID: " + id
-        );
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Avaliação ID " + id
-                                    + " não encontrada."
-                    );
-
-                    return new RuntimeException(
-                            "Avaliação não encontrada"
-                    );
-                });
+    public AvaliacaoResponseDTO findById(Long id) {
+        logger.info("Buscando avaliação no banco com ID: " + id);
+        Avaliacao avaliacao = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Avaliação com ID " + id + " não foi encontrada."));
+        return mapper.toResponseDTO(avaliacao);
     }
 
-    /**
-     * Busca todas as avaliações
-     */
-    public List<Avaliacao> findAll() {
-
-        logger.info(
-                "Buscando todas as avaliações no banco."
-        );
-
-        return repository.findAll();
+    public Page<AvaliacaoResponseDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toResponseDTO);
     }
 
-    /**
-     * Cria uma nova avaliação
-     */
-    public Avaliacao create(Avaliacao avaliacao) {
-
-        logger.info(
-                "Salvando nova avaliação no banco."
-        );
-
-        // save() cria no banco
-        return repository.save(avaliacao);
+    public Page<AvaliacaoResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable).map(mapper::toResponseDTO);
     }
 
-    /**
-     * Atualiza uma avaliação existente
-     */
+    public AvaliacaoResponseDTO create(AvaliacaoRequestDTO dto) {
+        logger.info("Salvando nova avaliação via DTO no banco.");
+
+        if (dto.usuarioId() == null || dto.jogoId() == null) {
+            throw new IllegalArgumentException("A avaliação deve possuir um usuário e um jogo válidos.");
+        }
+
+        Avaliacao avaliacao = mapper.toEntity(dto);
+        avaliacao.setDataPostagem(LocalDate.now());
+
+        Avaliacao salva = repository.save(avaliacao);
+        return mapper.toResponseDTO(salva);
+    }
+
     @Transactional
-    public Avaliacao update(Avaliacao avaliacao) {
-
-        logger.info(
-                "Atualizando avaliação ID: "
-                        + avaliacao.getIdAvaliacao()
-        );
-
-        // Verifica existência
-        Avaliacao existing = repository
-                .findById(avaliacao.getIdAvaliacao())
-                .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Avaliação ID "
-                                    + avaliacao.getIdAvaliacao()
-                                    + " não encontrada."
-                    );
-
-                    return new RuntimeException(
-                            "Avaliação não encontrada"
-                    );
-                });
-
-        existing.setNota(avaliacao.getNota());
-        existing.setTextoCritica(
-                avaliacao.getTextoCritica()
-        );
-        existing.setDataPostagem(
-                avaliacao.getDataPostagem()
-        );
-        existing.setUsuario(
-                avaliacao.getUsuario()
-        );
-        existing.setJogo(
-                avaliacao.getJogo()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove uma avaliação
-     */
-    public void delete(Long id) {
-
-        logger.info(
-                "Removendo avaliação ID: " + id
-        );
+    public AvaliacaoResponseDTO update(Long id, AvaliacaoRequestDTO dto) {
+        logger.info("Atualizando avaliação ID: " + id);
 
         Avaliacao existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Avaliação com ID " + id + " não existe."));
 
-                    logger.warning(
-                            "Avaliação ID "
-                                    + id
-                                    + " não encontrada."
-                    );
+        existing.setNota(dto.nota());
+        existing.setTextoCritica(dto.textoCritica());
 
-                    return new RuntimeException(
-                            "Avaliação não encontrada"
-                    );
-                });
-
-        repository.delete(existing);
+        Avaliacao atualizada = repository.save(existing);
+        return mapper.toResponseDTO(atualizada);
     }
 
-    /**
-     * Altera a nota da avaliação
-     */
-    @Transactional
-    public Avaliacao alterarNota(
-            Long id,
-            Integer novaNota) {
-
-        Avaliacao avaliacao = repository
-                .findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning(
-                            "Avaliação ID "
-                                    + id
-                                    + " não encontrada."
-                    );
-
-                    return new RuntimeException(
-                            "Avaliação não encontrada"
-                    );
-                });
-
-        logger.info(
-                "Alterando nota da avaliação ID: "
-                        + avaliacao.getIdAvaliacao()
-        );
-
-        // Regra de negócio no Model
-        avaliacao.alterarNota(novaNota);
-
-        // Salva atualização
-        Avaliacao avaliacaoAtualizada =
-                repository.save(avaliacao);
-
-        logger.info(
-                "Nota atualizada com sucesso."
-        );
-
-        return avaliacaoAtualizada;
+    public void delete(Long id) {
+        logger.info("Removendo avaliação ID: " + id);
+        Avaliacao existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Avaliação com ID " + id + " não existe."));
+        repository.delete(existing);
     }
 }

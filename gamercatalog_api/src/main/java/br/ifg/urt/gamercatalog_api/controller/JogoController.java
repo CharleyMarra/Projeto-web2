@@ -1,71 +1,128 @@
 package br.ifg.urt.gamercatalog_api.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import br.ifg.urt.gamercatalog_api.model.Jogo;
+import br.ifg.urt.gamercatalog_api.assembler.JogoModelAssembler;
+import br.ifg.urt.gamercatalog_api.dto.request.JogoRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ExceptionResponse;
 import br.ifg.urt.gamercatalog_api.service.JogoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/jogos")
+@Validated
+@Tag(name = "Jogos", description = "Endpoints para gerenciamento de Jogos")
 public class JogoController {
 
     private final JogoService service;
+    private final JogoModelAssembler assembler;
+    private final PagedResourcesAssembler<JogoResponseDTO> pagedAssembler;
 
-    public JogoController(JogoService service) {
+    // Construtor atualizado injetando também o pagedAssembler
+    public JogoController(JogoService service, 
+                          JogoModelAssembler assembler,
+                          PagedResourcesAssembler<JogoResponseDTO> pagedAssembler) {
         this.service = service;
+        this.assembler = assembler;
+        this.pagedAssembler = pagedAssembler;
     }
 
-    // 200 OK - Padrão para listagens
-    @GetMapping
-    public ResponseEntity<List<Jogo>> buscarTodos() {
-
-        List<Jogo> jogos = service.findAll();
-
-        return ResponseEntity.ok(jogos);
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Listar todos os jogos", 
+        description = "Retorna uma lista paginada de jogos com os links do HATEOAS",
+        responses = {
+            @ApiResponse(description = "Sucesso", responseCode = "200"),
+            @ApiResponse(description = "Erro Interno", responseCode = "500", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
+    public ResponseEntity<PagedModel<EntityModel<JogoResponseDTO>>> buscarTodos(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10, sort = "titulo") Pageable pageable) {
+        
+        Page<JogoResponseDTO> paginaJogos = service.findAll(nome, pageable);
+        return ResponseEntity.ok(pagedAssembler.toModel(paginaJogos, assembler));
     }
 
-    // 200 OK - Padrão para busca individual bem-sucedida
-    @GetMapping("/{id}")
-    public ResponseEntity<Jogo> buscarPorId(@PathVariable Long id) {
-
-        Jogo jogo = service.findById(id);
-
-        return ResponseEntity.ok(jogo);
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Buscar jogo por ID", 
+        description = "Retorna os detalhes de um jogo específico enriquecido com links",
+        responses = {
+            @ApiResponse(description = "Sucesso", responseCode = "200"),
+            @ApiResponse(description = "Jogo não encontrado", responseCode = "404", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+            @ApiResponse(description = "ID inválido", responseCode = "400", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
+    public ResponseEntity<EntityModel<JogoResponseDTO>> buscarPorId(@PathVariable Long id) {
+        JogoResponseDTO response = service.findById(id);
+        return ResponseEntity.ok(assembler.toModel(response));
     }
 
-    // 201 Created - Padrão para criação de recursos
-    @PostMapping
-    public ResponseEntity<Jogo> criar(@RequestBody Jogo jogo) {
-
-        Jogo novoJogo = service.create(jogo);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoJogo);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Criar um novo jogo", 
+        description = "Cadastra um novo jogo no catálogo e retorna os links das ações disponíveis",
+        responses = {
+            @ApiResponse(description = "Criado com sucesso", responseCode = "201"),
+            @ApiResponse(description = "Erro de validação nos dados enviados", responseCode = "400", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
+    public ResponseEntity<EntityModel<JogoResponseDTO>> criar(@Valid @RequestBody JogoRequestDTO dto) {
+        JogoResponseDTO novoJogo = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(novoJogo));
     }
 
-    // 200 OK - Recurso atualizado com sucesso
-    @PutMapping("/{id}")
-    public ResponseEntity<Jogo> atualizar(
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Atualizar um jogo", 
+        description = "Atualiza os dados de um jogo existente e atualiza os links de hipermídia",
+        responses = {
+            @ApiResponse(description = "Atualizado com sucesso", responseCode = "200"),
+            @ApiResponse(description = "Não foi possível atualizar: Jogo não existe", responseCode = "404", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+            @ApiResponse(description = "Dados de atualização inválidos", responseCode = "400", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
+    public ResponseEntity<EntityModel<JogoResponseDTO>> atualizar(
             @PathVariable Long id,
-            @RequestBody Jogo jogo) {
-
-        jogo.setId(id);
-
-        Jogo jogoAtualizado = service.update(jogo);
-
-        return ResponseEntity.ok(jogoAtualizado);
+            @Valid @RequestBody JogoRequestDTO dto) {
+        JogoResponseDTO response = service.update(id, dto);
+        return ResponseEntity.ok(assembler.toModel(response));
     }
 
-    // 204 No Content - Padrão para remoção
     @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Excluir um jogo", 
+        description = "Remove um jogo do catálogo por ID",
+        responses = {
+            @ApiResponse(description = "Excluído com sucesso", responseCode = "204"),
+            @ApiResponse(description = "Não foi possível excluir: Jogo não existe", responseCode = "404", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

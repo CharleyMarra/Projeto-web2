@@ -2,6 +2,7 @@ package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,15 +12,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import br.ifg.urt.gamercatalog_api.model.vo.Preco;
 
-@Entity // Indica que esta classe é uma tabela no banco de dados
-@Table(name = "jogos") // Nome da tabela
+@Entity
+@Table(name = "jogos")
 public class Jogo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Define a chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremento
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 150)
@@ -28,8 +30,8 @@ public class Jogo implements Serializable {
     @Column(length = 500)
     private String descricao;
 
-    @Column(nullable = false)
-    private Double preco;
+    @Embedded // O banco terá as colunas 'preco_valor' e 'preco_moeda'
+    private Preco preco;
 
     @Column(nullable = false, length = 100)
     private String genero;
@@ -64,12 +66,12 @@ public class Jogo implements Serializable {
     @OneToMany(mappedBy = "jogo")
     private List<Favoritos> favoritos;
 
-    // O construtor padrão é obrigatório para o JPA
+    // Construtor padrão obrigatório para JPA
     public Jogo() {
     }
 
     public Jogo(Long id, String titulo, String descricao,
-                 Double preco, String genero,
+                 Preco preco, String genero,
                  Integer classificacaoIndicativa) {
 
         this.id = id;
@@ -104,11 +106,11 @@ public class Jogo implements Serializable {
         this.descricao = descricao;
     }
 
-    public Double getPreco() {
+    public Preco getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(Preco preco) {
         this.preco = preco;
     }
 
@@ -128,17 +130,71 @@ public class Jogo implements Serializable {
         this.classificacaoIndicativa = classificacaoIndicativa;
     }
 
-    // Método de regra de negócio
     public void alterarPreco(Double novoPreco) {
+        this.preco = new Preco(novoPreco, this.preco != null ? this.preco.moeda() : "BRL");
+    }
 
-        // Validação
-        if (novoPreco == null || novoPreco <= 0) {
-            throw new IllegalArgumentException(
-                    "O preço deve ser maior que zero."
-            );
-        }
+    public Estudio getEstudio() {
+        return estudio;
+    }
 
-        // Atualização do estado
-        this.preco = novoPreco;
+    public void setEstudio(Estudio estudio) {
+        this.estudio = estudio;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    public Plataforma getPlataforma() {
+        return plataforma;
+    }
+
+    public void setPlataforma(Plataforma plataforma) {
+        this.plataforma = plataforma;
+    }
+
+    public List<Avaliacao> getAvaliacoes() {
+        return avaliacoes;
+    }
+
+    public void setAvaliacoes(List<Avaliacao> avaliacoes) {
+        this.avaliacoes = avaliacoes;
+    }
+
+    public List<Comentarios> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentarios> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public List<Dlc> getDlcs() {
+        return dlcs;
+    }
+
+    public void setDlcs(List<Dlc> dlcs) {
+        this.dlcs = dlcs;
+    }
+
+    public List<Conquista> getConquistas() {
+        return conquistas;
+    }
+
+    public void setConquistas(List<Conquista> conquistas) {
+        this.conquistas = conquistas;
+    }
+
+    public List<Favoritos> getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(List<Favoritos> favoritos) {
+        this.favoritos = favoritos;
     }
 }

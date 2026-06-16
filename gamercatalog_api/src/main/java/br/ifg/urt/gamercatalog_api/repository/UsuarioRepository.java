@@ -1,12 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import br.ifg.urt.gamercatalog_api.model.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface UsuarioRepository
@@ -25,12 +24,12 @@ public interface UsuarioRepository
                 );
     }
 
-    // Busca por email (login)
+    // Busca por email
     Optional<Usuario> findByEmail(String email);
 
     // Busca por nome (exato)
     Optional<Usuario> findByNome(String nome);
 
     // Busca por parte do nome
-    List<Usuario> findByNomeContainingIgnoreCase(String nome);
+    Page<Usuario> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }

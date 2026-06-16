@@ -11,25 +11,23 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@Entity // Indica que esta classe é uma tabela no banco de dados
-@Table(name = "favoritos") // Nome da tabela
+@Entity
+@Table(name = "favoritos")
 public class Favoritos implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Define a chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremento
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idFavorito;
 
     @Column(nullable = false)
     private LocalDate dataAdicionado;
 
-    // Muitos favoritos podem pertencer a um usuário
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // Muitos favoritos podem referenciar um jogo
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
@@ -95,7 +93,6 @@ public class Favoritos implements Serializable {
         this.jogo = jogo;
     }
 
-    // Método de regra de negócio
     public void adicionarFavorito() {
 
         if (this.dataAdicionado == null) {

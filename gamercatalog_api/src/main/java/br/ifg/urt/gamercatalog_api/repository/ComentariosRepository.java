@@ -1,10 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import br.ifg.urt.gamercatalog_api.model.Comentarios;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface ComentariosRepository
@@ -27,16 +28,14 @@ public interface ComentariosRepository
     Optional<Comentarios> findByTexto(String texto);
 
     // Busca por parte do texto
-    List<Comentarios> findByTextoContainingIgnoreCase(
-            String texto
-    );
+    Page<Comentarios> findByTextoContainingIgnoreCase(String texto, Pageable pageable);
 
     // Busca comentários por usuário
-    List<Comentarios> findByUsuarioId(Long usuarioId);
+    Page<Comentarios> findByUsuarioId(Long usuarioId, Pageable pageable);
 
     // Busca comentários por jogo
-    List<Comentarios> findByJogoId(Long jogoId);
+    Page<Comentarios> findByJogoId(Long jogoId, Pageable pageable);
 
     // Ordena comentários por data/hora
-    List<Comentarios> findAllByOrderByDataHoraDesc();
+    Page<Comentarios> findAllByOrderByDataHoraDesc(Pageable pageable);
 }

@@ -1,10 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import br.ifg.urt.gamercatalog_api.model.Avaliacao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface AvaliacaoRepository
@@ -26,13 +27,13 @@ public interface AvaliacaoRepository
     }
 
     // Busca avaliações pela nota
-    List<Avaliacao> findByNota(Integer nota);
+    Page<Avaliacao> findByNota(Integer nota, Pageable pageable);
 
     // Busca avaliações acima de uma nota
-    List<Avaliacao> findByNotaGreaterThan(Integer nota);
+    Page<Avaliacao> findByNotaGreaterThan(Integer nota, Pageable pageable);
 
     // Busca avaliações abaixo de uma nota
-    List<Avaliacao> findByNotaLessThan(Integer nota);
+    Page<Avaliacao> findByNotaLessThan(Integer nota, Pageable pageable);
 
     // Busca avaliações contendo texto
     List<Avaliacao> findByTextoCriticaContainingIgnoreCase(
@@ -43,7 +44,7 @@ public interface AvaliacaoRepository
     List<Avaliacao> findByUsuarioId(Long usuarioId);
 
     // Busca avaliações por jogo
-    List<Avaliacao> findByJogoId(Long jogoId);
+    Page<Avaliacao> findByJogoId(Long jogoId, Pageable pageable);
 
     // Ordena avaliações por data
     List<Avaliacao> findAllByOrderByDataPostagemDesc();

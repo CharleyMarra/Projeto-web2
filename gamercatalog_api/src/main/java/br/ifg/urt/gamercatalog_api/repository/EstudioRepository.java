@@ -1,12 +1,11 @@
 package br.ifg.urt.gamercatalog_api.repository;
 
-import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import br.ifg.urt.gamercatalog_api.model.Estudio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface EstudioRepository
@@ -30,13 +29,11 @@ public interface EstudioRepository
     Optional<Estudio> findByNome(String nome);
 
     // Busca por parte do nome
-    List<Estudio> findByNomeContainingIgnoreCase(
-            String nome
-    );
+    Page<Estudio> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
     // Busca por país
-    List<Estudio> findByPais(String pais);
+    Page<Estudio> findByPais(String pais, Pageable pageable);
 
     // Ordena por nome
-    List<Estudio> findAllByOrderByNomeAsc();
+    Page<Estudio> findAllByOrderByNomeAsc(Pageable pageable);
 }

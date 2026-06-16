@@ -1,120 +1,88 @@
 package br.ifg.urt.gamercatalog_api.service;
 
-import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
+import br.ifg.urt.gamercatalog_api.dto.request.PublisherRequestDTO;
+import br.ifg.urt.gamercatalog_api.dto.response.PublisherResponseDTO;
+import br.ifg.urt.gamercatalog_api.exception.ResourceNotFoundException;
+import br.ifg.urt.gamercatalog_api.mapper.PublisherMapper;
 import br.ifg.urt.gamercatalog_api.model.Publisher;
 import br.ifg.urt.gamercatalog_api.repository.PublisherRepository;
 
 @Service
 public class PublisherService {
 
-    private static final Logger logger =
-            Logger.getLogger(PublisherService.class.getName());
-
-    // Repository para acesso ao banco
+    private static final Logger logger = Logger.getLogger(PublisherService.class.getName());
     private final PublisherRepository repository;
+    private final PublisherMapper mapper;
 
-    // Injeção via construtor
-    public PublisherService(PublisherRepository repository) {
+    public PublisherService(PublisherRepository repository, PublisherMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Busca um publisher por ID
-     */
-    public Publisher findById(Long id) {
-
+    @Cacheable(value = "publishers", key = "#id")
+    public PublisherResponseDTO findById(Long id) {
         logger.info("Buscando publisher no banco com ID: " + id);
-
-        return repository.findById(id)
-                .orElseThrow(() -> {
-
-                    logger.warning("Publisher ID "
-                            + id
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
+        Publisher publisher = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher com ID " + id + " não foi encontrada."));
+        return mapper.toResponseDTO(publisher);
     }
 
-    /**
-     * Busca todos os publishers
-     */
-    public List<Publisher> findAll() {
-
-        logger.info("Buscando todos os publishers no banco.");
-
-        return repository.findAll();
+    @Cacheable(value = "publishersPaginados", key = "{ #nome, #pageable.pageNumber, #pageable.pageSize, #pageable.sort }")
+    public Page<PublisherResponseDTO> findAll(String nome, Pageable pageable) {
+        Page<Publisher> pagina;
+        
+        // Verifica se o filtro por nome foi enviado
+        if (nome != null && !nome.isBlank()) {
+            pagina = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            pagina = repository.findAll(pageable);
+        }
+        
+        return pagina.map(mapper::toResponseDTO);
     }
 
-    /**
-     * Cria um novo publisher
-     */
-    public Publisher create(Publisher publisher) {
-
-        logger.info("Salvando novo publisher no banco: "
-                + publisher.getNome());
-
-        // save() cria no banco
-        return repository.save(publisher);
+    @CacheEvict(value = "publishersPaginados", allEntries = true)
+    public PublisherResponseDTO create(PublisherRequestDTO dto) {
+        logger.info("Salvando novo publisher via DTO no banco.");
+        Publisher publisher = mapper.toEntity(dto);
+        Publisher salvo = repository.save(publisher);
+        return mapper.toResponseDTO(salvo);
     }
 
-    /**
-     * Atualiza um publisher existente
-     */
+    @Caching(evict = {
+        @CacheEvict(value = "publishers", key = "#id"),
+        @CacheEvict(value = "publishersPaginados", allEntries = true)
+    })
     @Transactional
-    public Publisher update(Publisher publisher) {
-
-        logger.info("Atualizando publisher ID: "
-                + publisher.getId());
-
-        // Verifica existência
-        Publisher existing = repository.findById(
-                        publisher.getId()
-                )
-                .orElseThrow(() -> {
-
-                    logger.warning("Publisher ID "
-                            + publisher.getId()
-                            + " não encontrado.");
-
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
-
-        existing.setNome(publisher.getNome());
-        existing.setSede(
-                publisher.getSede()
-        );
-
-        // save() atualiza no banco
-        return repository.save(existing);
-    }
-
-    /**
-     * Remove um publisher
-     */
-    public void delete(Long id) {
-
-        logger.info("Removendo publisher ID: " + id);
+    public PublisherResponseDTO update(Long id, PublisherRequestDTO dto) {
+        logger.info("Atualizando publisher ID: " + id);
 
         Publisher existing = repository.findById(id)
-                .orElseThrow(() -> {
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Publisher com ID " + id + " não existe."));
 
-                    logger.warning("Publisher ID "
-                            + id
-                            + " não encontrado.");
+        existing.setNome(dto.nome());
+        existing.setSede(dto.paisSede());
 
-                    return new RuntimeException(
-                            "Publisher não encontrado"
-                    );
-                });
+        Publisher atualizado = repository.save(existing);
+        return mapper.toResponseDTO(atualizado);
+    }
 
+    @Caching(evict = {
+        @CacheEvict(value = "publishers", key = "#id"),
+        @CacheEvict(value = "publishersPaginados", allEntries = true)
+    })
+    public void delete(Long id) {
+        logger.info("Removendo publisher ID: " + id);
+        Publisher existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível excluir: Publisher com ID " + id + " não existe."));
         repository.delete(existing);
     }
 }

@@ -1,7 +1,6 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,7 +38,7 @@ public class Usuario implements Serializable {
     @OneToMany(mappedBy = "usuario")
     private List<Favoritos> favoritos;
 
-    // Construtor padrão obrigatório
+    // Construtor padrão obrigatório para JPA
     public Usuario() {
     }
 
@@ -50,7 +49,6 @@ public class Usuario implements Serializable {
         this.senha = senha;
     }
 
-    // Métodos
     public void fazerComentario() {
         System.out.println("Comentário realizado");
     }
@@ -63,7 +61,6 @@ public class Usuario implements Serializable {
         System.out.println("Jogo favoritado");
     }
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }
