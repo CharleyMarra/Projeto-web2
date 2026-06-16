@@ -4,7 +4,7 @@
 ### 🌐 Informações Institucionais
 * **Entidade de Ensino:** Instituto Federal Goiano (IFG) — Campus Urutaí
 * **Escopo Acadêmico:** Disciplina de Programação Web II
-* **Equipe:** Ana Lia, Charley Junior e João Pedro
+* **Equipe:** Ana Lia, Charley Marra e João Pedro Queiroz
 
 ---
 
