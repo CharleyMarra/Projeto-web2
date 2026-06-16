@@ -24,7 +24,7 @@ public interface UsuarioRepository
                 );
     }
 
-    // Busca por email (login)
+    // Busca por email
     Optional<Usuario> findByEmail(String email);
 
     // Busca por nome (exato)

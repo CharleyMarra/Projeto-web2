@@ -19,17 +19,13 @@ public class ComentariosService {
     private static final Logger logger = Logger.getLogger(ComentariosService.class.getName());
 
     private final ComentariosRepository repository;
-    private final ComentariosMapper mapper; // INJETADO O MAPPER
+    private final ComentariosMapper mapper;
 
-    // Construtor atualizado recebendo o Mapper automático
     public ComentariosService(ComentariosRepository repository, ComentariosMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    /**
-     * Busca um comentário por ID e retorna formatado em DTO
-     */
     public ComentariosResponseDTO findById(Long id) {
 
         logger.info("Buscando comentário no banco com ID: " + id);
@@ -37,12 +33,9 @@ public class ComentariosService {
         Comentarios comentario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comentário com ID " + id + " não foi encontrado."));
 
-        return mapper.toResponseDTO(comentario); // Conversão para DTO
+        return mapper.toResponseDTO(comentario);
     }
 
-    /**
-     * Busca todos os comentários e retorna a lista em DTO
-     */
     public Page<ComentariosResponseDTO> findAll(String texto, Pageable pageable) {
         Page<Comentarios> pagina;
         if (texto != null && !texto.isBlank()) {
@@ -53,16 +46,10 @@ public class ComentariosService {
         return pagina.map(mapper::toResponseDTO);
     }
 
-    /**
-     * Busca os comentários vinculados a um jogo específico
-     */
     public Page<ComentariosResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
         return repository.findByJogoId(jogoId, pageable).map(mapper::toResponseDTO);
     }
 
-    /**
-     * Cria um novo comentário a partir de um RequestDTO
-     */
     public ComentariosResponseDTO create(ComentariosRequestDTO dto) {
 
         logger.info("Salvando novo comentário via DTO no banco.");
@@ -79,12 +66,9 @@ public class ComentariosService {
 
         Comentarios salvo = repository.save(comentario);
 
-        return mapper.toResponseDTO(salvo); // Retorna a resposta limpa (ResponseDTO)
+        return mapper.toResponseDTO(salvo);
     }
 
-    /**
-     * Atualiza o texto de um comentário existente
-     */
     @Transactional
     public ComentariosResponseDTO update(Long id, ComentariosRequestDTO dto) {
 
@@ -101,9 +85,6 @@ public class ComentariosService {
         return mapper.toResponseDTO(atualizado);
     }
 
-    /**
-     * Remove um comentário
-     */
     public void delete(Long id) {
 
         logger.info("Removendo comentário ID: " + id);

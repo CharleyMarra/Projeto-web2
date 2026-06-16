@@ -46,7 +46,6 @@ public class PublisherService {
             pagina = repository.findAll(pageable);
         }
         
-        // Converte a página de Publisher para PublisherResponseDTO
         return pagina.map(mapper::toResponseDTO);
     }
 

@@ -46,7 +46,6 @@ public class JogoService {
             pagina = repository.findAll(pageable); 
         }
         
-        // O método .map() converte a página de Entidade para página de DTO 
         return pagina.map(mapper::toResponseDTO); 
     }
 
@@ -56,7 +55,6 @@ public class JogoService {
         Jogo jogo = mapper.toEntity(dto);
         
         if(jogo.getPreco() == null) {
-            // Usa o método que já criamos para transformar o Double em VO automaticamente
             jogo.alterarPreco(0.0); 
         }
         if(jogo.getClassificacaoIndicativa() == null) {
@@ -78,11 +76,10 @@ public class JogoService {
         Jogo existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Jogo com ID " + id + " não existe."));
 
-        existing.setTitulo(dto.nome()); // Mantendo a coerência com as regras do mapper
+        existing.setTitulo(dto.nome());
         existing.setDescricao(dto.descricao());
         existing.setGenero(dto.genero());
 
-        // Adicione esta linha para garantir que a edição de preço funcione!
         if (dto.preco() != null) {
             existing.alterarPreco(dto.preco());
         }

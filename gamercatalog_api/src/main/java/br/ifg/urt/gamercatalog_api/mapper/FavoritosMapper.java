@@ -12,7 +12,7 @@ public interface FavoritosMapper {
 
     @Mapping(target = "nomeUsuario", source = "usuario.nome")
     @Mapping(target = "jogoId", source = "jogo.id")
-    @Mapping(target = "nomeJogo", source = "jogo.titulo") // Alterado para titulo
+    @Mapping(target = "nomeJogo", source = "jogo.titulo")
     FavoritosResponseDTO toResponseDTO(Favoritos f);
 
     @Mapping(target = "idFavorito", ignore = true)

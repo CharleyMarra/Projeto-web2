@@ -11,7 +11,7 @@ import br.ifg.urt.gamercatalog_api.model.Comentarios;
 public interface ComentariosMapper {
 
     @Mapping(target = "nomeUsuario", source = "usuario.nome")
-    @Mapping(target = "nomeJogo", source = "jogo.titulo") // Alterado para titulo
+    @Mapping(target = "nomeJogo", source = "jogo.titulo")
     ComentariosResponseDTO toResponseDTO(Comentarios c);
 
     @Mapping(target = "idComentario", ignore = true)

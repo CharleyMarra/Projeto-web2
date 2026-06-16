@@ -39,27 +39,6 @@ public class ConquistaController {
         this.pagedAssembler = pagedAssembler;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Listar conquistas paginadas e com filtro", 
-        description = "Retorna uma lista paginada de conquistas com os links do HATEOAS",
-        responses = {
-            @ApiResponse(description = "Sucesso", responseCode = "200"),
-            @ApiResponse(description = "Erro Interno", responseCode = "500", content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
-        }
-    )
-    public ResponseEntity<PagedModel<EntityModel<ConquistaResponseDTO>>> buscarTodos(
-            @RequestParam(required = false) String titulo,
-            @RequestParam(required = false) Long usuarioId,
-            @PageableDefault(size = 10, sort = "titulo") Pageable pageable) {
-
-        Page<ConquistaResponseDTO> page = (usuarioId != null)
-            ? service.findByUsuario(usuarioId, pageable)
-            : service.findAll(titulo, pageable);
-
-        return ResponseEntity.ok(pagedAssembler.toModel(page, assembler));
-    }
-
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Buscar conquista por ID", 

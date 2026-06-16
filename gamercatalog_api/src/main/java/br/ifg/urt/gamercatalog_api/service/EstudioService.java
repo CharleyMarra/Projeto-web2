@@ -46,7 +46,6 @@ public class EstudioService {
             pagina = repository.findAll(pageable);
         }
         
-        // Converte a página de Estudio para EstudioResponseDTO
         return pagina.map(mapper::toResponseDTO);
     }
 
@@ -70,7 +69,7 @@ public class EstudioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Não foi possível atualizar: Estúdio com ID " + id + " não existe."));
 
         existing.setNome(dto.nome());
-        existing.setPais(dto.paisOrigem()); // Conforme mapeamento no EstudioMapper
+        existing.setPais(dto.paisOrigem());
 
         Estudio atualizado = repository.save(existing);
         return mapper.toResponseDTO(atualizado);

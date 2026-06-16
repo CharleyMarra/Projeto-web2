@@ -10,11 +10,11 @@ import br.ifg.urt.gamercatalog_api.model.Dlc;
 @Mapper(componentModel = "spring")
 public interface DlcMapper {
 
-    @Mapping(target = "nomeJogo", source = "jogo.titulo") // Alterado para titulo
+    @Mapping(target = "nomeJogo", source = "jogo.titulo")
     DlcResponseDTO toResponseDTO(Dlc dlc);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "jogo.id", source = "jogoId") // Link correto da Entity
+    @Mapping(target = "jogo.id", source = "jogoId")
     Dlc toEntity(DlcRequestDTO dto);
 
     List<DlcResponseDTO> toResponseDTOList(List<Dlc> dlcs);

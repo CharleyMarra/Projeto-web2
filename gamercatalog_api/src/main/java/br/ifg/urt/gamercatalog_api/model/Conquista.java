@@ -1,7 +1,6 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +30,7 @@ public class Conquista implements Serializable {
     @JoinColumn(name = "jogo_id")
     private Jogo jogo;
 
-    // Construtor padrão obrigatório
+    // Construtor padrão obrigatório para JPA
     public Conquista() {
     }
 
@@ -41,7 +40,6 @@ public class Conquista implements Serializable {
         this.raridade = raridade;
     }
 
-    // Getters e Setters
 
     public Long getId() {
         return id;

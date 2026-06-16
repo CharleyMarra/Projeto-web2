@@ -20,7 +20,7 @@ public interface FavoritosRepository
 
     Page<Favoritos> findByUsuario(Usuario usuario, Pageable pageable);
 
-    // ADICIONADO: Busca os favoritos de um usuário diretamente pelo ID numérico dele
+    // Busca os favoritos de um usuário diretamente pelo ID numérico dele
     Page<Favoritos> findByUsuarioId(Long usuarioId, Pageable pageable);
 
     Page<Favoritos> findByJogo(Jogo jogo, Pageable pageable);

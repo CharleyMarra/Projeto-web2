@@ -5,13 +5,13 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-@Entity // Indica que esta classe é uma tabela no banco
+@Entity
 @Table(name = "plataformas")
 public class Plataforma implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Chave primária
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -21,13 +21,11 @@ public class Plataforma implements Serializable {
     @Column(nullable = false, length = 100)
     private String fabricante;
 
-    // Relacionamento:
-    // Uma plataforma possui vários jogos
     @JsonIgnore
     @OneToMany(mappedBy = "plataforma")
     private List<Jogo> jogos;
 
-    // Construtor padrão obrigatório
+    // Construtor padrão obrigatório para JPA
     public Plataforma() {
     }
 

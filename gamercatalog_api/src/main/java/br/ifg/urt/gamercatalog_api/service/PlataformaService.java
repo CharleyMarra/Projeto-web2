@@ -46,7 +46,6 @@ public class PlataformaService {
             pagina = repository.findAll(pageable);
         }
         
-        // Converte a página de Plataforma para PlataformaResponseDTO
         return pagina.map(mapper::toResponseDTO);
     }
 

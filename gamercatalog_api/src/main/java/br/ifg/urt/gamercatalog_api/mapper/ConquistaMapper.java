@@ -10,11 +10,9 @@ import br.ifg.urt.gamercatalog_api.model.Conquista;
 @Mapper(componentModel = "spring")
 public interface ConquistaMapper {
 
-    // Mapeia o título do jogo para a saída do Response
     @Mapping(target = "nomeJogo", source = "jogo.titulo") 
     ConquistaResponseDTO toResponseDTO(Conquista conquista);
 
-    // CORREÇÃO: Removido o mapeamento para usuario.id pois a Entidade Conquista não tem Usuario
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "jogo", ignore = true) 
     Conquista toEntity(ConquistaRequestDTO dto);

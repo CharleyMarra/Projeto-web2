@@ -11,7 +11,7 @@ import br.ifg.urt.gamercatalog_api.model.Avaliacao;
 public interface AvaliacaoMapper {
 
     @Mapping(target = "nomeUsuario", source = "usuario.nome")
-    @Mapping(target = "nomeJogo", source = "jogo.titulo") // Alterado para titulo
+    @Mapping(target = "nomeJogo", source = "jogo.titulo")
     AvaliacaoResponseDTO toResponseDTO(Avaliacao a);
 
     @Mapping(target = "idAvaliacao", ignore = true)

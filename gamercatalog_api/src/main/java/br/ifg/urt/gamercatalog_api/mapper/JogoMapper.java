@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import br.ifg.urt.gamercatalog_api.dto.request.JogoRequestDTO;
 import br.ifg.urt.gamercatalog_api.dto.response.JogoResponseDTO;
 import br.ifg.urt.gamercatalog_api.model.Jogo;
-import br.ifg.urt.gamercatalog_api.model.vo.Preco; // IMPORTANTE: Não esqueça do import do VO!
+import br.ifg.urt.gamercatalog_api.model.vo.Preco;
 
 @Mapper(componentModel = "spring")
 public interface JogoMapper {
@@ -19,16 +19,14 @@ public interface JogoMapper {
         return new Preco(valor, "BRL"); // Já cria o VO se autovalidando e com a moeda padrão
     }
 
-    // 2. MAPEAMENTO PARA RESPONSE (Saída)
     @Mapping(target = "nome", source = "titulo")
     @Mapping(target = "preco", source = "preco.valor")
     @Mapping(target = "precoFormatado", expression = "java(j.getPreco() != null ? j.getPreco().getFormatado() : null)")
     JogoResponseDTO toResponseDTO(Jogo j);
 
-    // 3. MAPEAMENTO PARA ENTITY (Entrada)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "titulo", source = "nome")
-    @Mapping(target = "preco", source = "preco") // Agora basta apontar "preco" para "preco". Ele usará o método default automaticamente!
+    @Mapping(target = "preco", source = "preco")
     @Mapping(target = "estudio", ignore = true)  
     @Mapping(target = "publisher", ignore = true)
     @Mapping(target = "plataforma", ignore = true) 

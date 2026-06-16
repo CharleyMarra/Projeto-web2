@@ -42,10 +42,6 @@ public class ConquistaService {
         return pagina.map(mapper::toResponseDTO);
     }
 
-    public Page<ConquistaResponseDTO> findByUsuario(Long usuarioId, Pageable pageable) {
-        return repository.findByUsuarioId(usuarioId, pageable).map(mapper::toResponseDTO);
-    }
-
     public ConquistaResponseDTO create(ConquistaRequestDTO dto) {
         logger.info("Salvando nova conquista via DTO no banco.");
         Conquista conquista = mapper.toEntity(dto);

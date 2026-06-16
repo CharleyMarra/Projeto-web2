@@ -30,12 +30,10 @@ public class Avaliacao implements Serializable {
     @Column(nullable = false)
     private LocalDate dataPostagem;
 
-    // Muitos avaliações para um usuário
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // Muitas avaliações para um jogo
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
@@ -127,9 +125,6 @@ public class Avaliacao implements Serializable {
         this.jogo = jogo;
     }
 
-    /**
-     * Regra de negócio
-     */
     public void alterarNota(Integer novaNota) {
 
         if (novaNota == null || novaNota < 0 || novaNota > 10) {

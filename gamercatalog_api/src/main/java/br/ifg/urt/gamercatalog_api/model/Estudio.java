@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
-@Entity // Indica que esta classe é uma tabela no banco
+@Entity
 @Table(name = "estudios")
 public class Estudio implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Define a chave primária
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,8 +23,6 @@ public class Estudio implements Serializable {
     @Column(nullable = false, length = 100)
     private String pais;
 
-    // Relacionamento:
-    // Um estúdio pode desenvolver vários jogos
     @JsonIgnore
     @OneToMany(mappedBy = "estudio")
     private List<Jogo> jogos;

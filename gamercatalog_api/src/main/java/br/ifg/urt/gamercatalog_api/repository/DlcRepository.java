@@ -18,6 +18,6 @@ public interface DlcRepository extends JpaRepository<Dlc, Long> {
     // Buscar DLCs com preço menor que o valor informado
     Page<Dlc> findByPrecoLessThan(Double preco, Pageable pageable);
 
-    // ADICIONADO: Buscar DLCs vinculadas a um ID de jogo específico
+    // Buscar DLCs vinculadas a um ID de jogo específico
     Page<Dlc> findByJogoId(Long jogoId, Pageable pageable);
 }

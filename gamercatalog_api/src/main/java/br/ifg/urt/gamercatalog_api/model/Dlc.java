@@ -1,7 +1,6 @@
 package br.ifg.urt.gamercatalog_api.model;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -65,17 +64,14 @@ public class Dlc implements Serializable {
         this.preco = preco;
     }
 
-    // Método de regra de negócio
     public void alterarPreco(Double novoPreco) {
 
-        // Validação
         if (novoPreco == null || novoPreco <= 0) {
             throw new IllegalArgumentException(
                     "O preço deve ser maior que zero."
             );
         }
 
-        // Atualização do estado
         this.preco = novoPreco;
     }
 

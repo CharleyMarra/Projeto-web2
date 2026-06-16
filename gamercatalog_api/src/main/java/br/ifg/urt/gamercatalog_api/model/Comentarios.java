@@ -11,14 +11,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@Entity // Indica que esta classe é uma tabela no banco de dados
-@Table(name = "comentarios") // Nome da tabela
+@Entity
+@Table(name = "comentarios")
 public class Comentarios implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id // Define a chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremento
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idComentario;
 
     @Column(nullable = false, length = 1000)
@@ -27,17 +27,15 @@ public class Comentarios implements Serializable {
     @Column(nullable = false)
     private LocalDateTime dataHora;
 
-    // Muitos comentários para um usuário
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // Muitos comentários para um jogo
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
 
-    // O construtor padrão é obrigatório para o JPA
+    // Construtor padrão obrigatório para JPA
     public Comentarios() {
     }
 
@@ -116,17 +114,14 @@ public class Comentarios implements Serializable {
         this.jogo = jogo;
     }
 
-    // Método de regra de negócio
     public void editarComentario(String novoTexto) {
 
-        // Validação
         if (novoTexto == null || novoTexto.isBlank()) {
             throw new IllegalArgumentException(
                     "O comentário não pode estar vazio."
             );
         }
 
-        // Atualização do estado
         this.texto = novoTexto;
     }
 }

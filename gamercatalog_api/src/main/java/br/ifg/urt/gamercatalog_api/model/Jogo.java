@@ -14,14 +14,14 @@ import jakarta.persistence.Table;
 import java.util.List;
 import br.ifg.urt.gamercatalog_api.model.vo.Preco;
 
-@Entity // Indica que esta classe é uma tabela no banco de dados
-@Table(name = "jogos") // Nome da tabela
+@Entity
+@Table(name = "jogos")
 public class Jogo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Define a chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremento
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 150)
@@ -30,7 +30,7 @@ public class Jogo implements Serializable {
     @Column(length = 500)
     private String descricao;
 
-    @Embedded // O banco terá as colunas 'preco_valor' e 'preco_moeda' [cite: 2118]
+    @Embedded // O banco terá as colunas 'preco_valor' e 'preco_moeda'
     private Preco preco;
 
     @Column(nullable = false, length = 100)
@@ -66,7 +66,7 @@ public class Jogo implements Serializable {
     @OneToMany(mappedBy = "jogo")
     private List<Favoritos> favoritos;
 
-    // O construtor padrão é obrigatório para o JPA
+    // Construtor padrão obrigatório para JPA
     public Jogo() {
     }
 
@@ -130,9 +130,7 @@ public class Jogo implements Serializable {
         this.classificacaoIndicativa = classificacaoIndicativa;
     }
 
-    // Método de regra de negócio
     public void alterarPreco(Double novoPreco) {
-        // Atualização do estado
         this.preco = new Preco(novoPreco, this.preco != null ? this.preco.moeda() : "BRL");
     }
 

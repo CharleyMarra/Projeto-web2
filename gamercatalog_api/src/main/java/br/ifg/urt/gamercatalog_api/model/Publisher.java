@@ -5,13 +5,13 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-@Entity // Indica que esta classe é uma tabela no banco
+@Entity
 @Table(name = "publishers")
 public class Publisher implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // Define a chave primária
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -21,8 +21,6 @@ public class Publisher implements Serializable {
     @Column(nullable = false, length = 150)
     private String sede;
 
-    // Relacionamento:
-    // Um publisher possui vários jogos
     @JsonIgnore
     @OneToMany(mappedBy = "publisher")
     private List<Jogo> jogos;
