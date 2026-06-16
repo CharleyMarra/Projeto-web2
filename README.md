@@ -37,28 +37,29 @@ A **GamerCatalog API** resolve esse problema centralizando esses domínios em um
 
 | Código | Descrição de Escopo Técnico |
 | :--- | :--- |
-| **RF01** | Ciclo completo de CRUD (Cadastro, leitura, atualização e deleção) de Usuários. |
-| **RF02** | Catalogação detalhada de jogos digitais contendo metadados essenciais. |
-| **RF03** | Mapeamento e associação flexível de títulos para múltiplas Plataformas de hardware. |
-| **RF04** | Rastreabilidade e vínculo de jogos aos seus respectivos Estúdios e Publishers. |
-| **RF05** | Mecanismo de pontuação indexada (Avaliações numéricas por título). |
-| **RF06** | Sistema de fórum e críticas em texto puro (Comentários) por jogo. |
-| **RF07** | Criação e manutenção de listas personalizadas de Jogos Favoritos por conta. |
-| **RF08** | Inclusão e versionamento de mídias de expansão (DLCs) atreladas ao ID do jogo. |
-| **RF09** | Sistema de gamificação através do registro de Conquistas/Troféus. |
-| **RF10** | Algoritmo de entrega de dados otimizado com paginação dinâmica e ordenação. |
-| **RF11** | Disponibilização de ambiente sandbox interativo para testes via Swagger UI. |
+| **RF01** | Permitir cadastro de usuários. |
+| **RF02** | Permitir login de usuários. |
+| **RF03** | Permitir cadastro de jogos. |
+| **RF04** | Permitir consulta de jogos cadastrados. |
+| **RF05** | Permitir cadastro de publisher. |
+| **RF06** | Permitir cadastro de plataformas. |
+| **RF07** | Permitir registro de avaliações de jogos pelos usuários. |
+| **RF08** | Permitir que usuários adicionem jogos à lista de favoritos. |
+| **RF09** | Permitir cadastro de DLCs ou conteúdos adicionais. |
+| **RF10** | Permitir registro de conquistas de jogos. |
+| **RF11** | Permitir que o usuário adicione comentários dos jogos. |
+| **RF12** | Permitir cadastro de estúdios desenvolvedores. |
 
 ### Restrições e Requisitos Não Funcionais (Quality Attributes)
 
 | Código | Métrica / Atributo de Qualidade |
 | :--- | :--- |
-| **RNF01** | **Conformidade REST:** Uso obrigatório de respostas padronizadas e semântica de verbos HTTP. |
-| **RNF02** | **Linguagem Base:** Construção em Java 21 explorando os novos recursos da linguagem. |
-| **RNF03** | **Persistência:** Uso de ORM acoplado ao Spring Data JPA para proteção contra SQL Injection. |
-| **RNF04** | **Sanitização de Dados:** Uso obrigatório do padrão DTO mediado pelo compilador MapStruct. |
-| **RNF05** | **Modularidade:** Divisão física rígida de pacotes em Controller, Service e Repository. |
-| **RNF06** | **Performance de Rede:** Bloqueio de queries em lote sem o uso de paginação estruturada. |
+| **RNF01** | A API deve seguir o padrão REST. |
+| **RNF02** | O sistema deve permitir integração com aplicações externas. |
+| **RNF03** | Os dados devem ser armazenados em um banco de dados relacional. |
+| **RNF04** | O sistema deve possuir atenticação de usuários. |
+| **RNF05** | A API deve possuir documentação dos endpoints. |
+
 
 ### Casos de Uso Principais
 
