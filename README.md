@@ -74,14 +74,13 @@ A **GamerCatalog API** resolve esse problema centralizando esses domínios em um
 
 # 🧩 Diagrama de Classes
 
-> 🖨️ **Área Reservada para Modelagem UML:** Substitua o bloco abaixo pelo link da imagem oficial exportada do Astah, Lucidchart ou ferramenta equivalente.
+<img width="2000" height="1414" alt="Design sem nome" src="https://github.com/user-attachments/assets/19cfa3d1-165e-4e5c-9c26-9935109c57a6" />
 
-
-[Insira aqui o link ou o caminho do seu Diagrama de Classes]
 
 # 🗄️ Diagrama Entidade-Relacionamento (DER)
 
-[Insira aqui o link ou o caminho do seu Diagrama Entidade-Relacionamento - DER]
+<img width="1536" height="768" alt="WhatsApp Image 2026-06-15 at 19 39 30" src="https://github.com/user-attachments/assets/b87f9964-d648-47b5-b07a-5c841301e956" />
+
 
 # 🏗️ **Projeto e Arquitetura**
 A aplicação foi projetada sob o paradigma de Separação de Preocupações (SoC), utilizando um fluxo desacoplado onde as entidades de banco nunca são expostas diretamente na camada de transporte (HTTP).
