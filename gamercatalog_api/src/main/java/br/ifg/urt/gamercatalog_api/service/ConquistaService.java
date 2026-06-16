@@ -11,6 +11,7 @@ import br.ifg.urt.gamercatalog_api.model.Conquista;
 import br.ifg.urt.gamercatalog_api.repository.ConquistaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class ConquistaService {
@@ -40,6 +41,13 @@ public class ConquistaService {
             pagina = repository.findAll(pageable);
         }
         return pagina.map(mapper::toResponseDTO);
+    }
+
+    // Armazena em cache os resultados paginados filtrados por cada ID de jogo
+    @Cacheable(value = "conquistasPorJogo", key = "{ #jogoId, #pageable.pageNumber, #pageable.pageSize, #pageable.sort }")
+    public Page<ConquistaResponseDTO> findByJogo(Long jogoId, Pageable pageable) {
+        return repository.findByJogoId(jogoId, pageable)
+                         .map(mapper::toResponseDTO);
     }
 
     public ConquistaResponseDTO create(ConquistaRequestDTO dto) {

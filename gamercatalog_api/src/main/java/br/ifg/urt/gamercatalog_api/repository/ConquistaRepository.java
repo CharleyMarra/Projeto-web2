@@ -16,6 +16,8 @@ public interface ConquistaRepository extends JpaRepository<Conquista, Long> {
 
     Page<Conquista> findByTituloContainingIgnoreCase(String titulo, Pageable pageable);
 
+    Page<Conquista> findByJogoId(Long jogoId, Pageable pageable);
+
     // Buscar por raridade
     Page<Conquista> findByRaridade(String raridade, Pageable pageable);
 

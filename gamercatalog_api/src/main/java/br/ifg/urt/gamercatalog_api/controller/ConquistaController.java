@@ -53,6 +53,24 @@ public class ConquistaController {
         return ResponseEntity.ok(assembler.toModel(service.findById(id)));
     }
 
+    @GetMapping(value = "/jogo/{jogoId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Listar todas as conquistas de um jogo específico", 
+        description = "Retorna uma lista paginada de conquistas vinculadas ao ID do jogo com links do HATEOAS",
+        responses = {
+            @ApiResponse(description = "Sucesso", responseCode = "200"),
+            @ApiResponse(description = "Erro Interno", responseCode = "500", 
+                         content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+        }
+    )
+    public ResponseEntity<PagedModel<EntityModel<ConquistaResponseDTO>>> buscarPorJogo(
+            @PathVariable Long jogoId,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        
+        Page<ConquistaResponseDTO> paginaConquistas = service.findByJogo(jogoId, pageable);
+        return ResponseEntity.ok(pagedAssembler.toModel(paginaConquistas, assembler));
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Criar uma nova conquista", 
